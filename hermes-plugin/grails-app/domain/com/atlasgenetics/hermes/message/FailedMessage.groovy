@@ -2,7 +2,7 @@ package com.atlasgenetics.hermes.message
 
 class FailedMessage {
 
-    Map data
+    MessageCommand data
     Date dateCreated
     Date lastUpdated
     boolean locked
@@ -14,4 +14,9 @@ class FailedMessage {
     static constraints = {
         data nullable: false
     }
+
+    static mapping = {
+        data type: 'jsonb'
+    }
+
 }

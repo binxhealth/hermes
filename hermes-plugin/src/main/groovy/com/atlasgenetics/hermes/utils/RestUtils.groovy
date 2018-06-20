@@ -1,31 +1,21 @@
 package com.atlasgenetics.hermes.utils
 
-import com.atlasgenetics.hermes.message.FailedMessage
+import com.atlasgenetics.hermes.message.MessageCommand
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
 import groovy.transform.CompileStatic
-import groovyx.net.http.URIBuilder
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.web.util.UriComponentsBuilder
 
 @CompileStatic
 class RestUtils {
 
     /**
      * Makes an HTTP request.
-     * The data must be in the following format:
-     * [
-     *      url: "http://some/host.com/example/uri/{foo}/{foo2}",
-     *      queryParams: [param: "value"],
-     *      urlParams: [foo: "bar", foo2: 1234],
-     *      method: HttpMethod.POST,
-     *      body: [baz: "bat"]
-     * ]
      * @param message
      * @return the HttpStatus of the response
      */
-    static HttpStatus attemptInitialSend(Map message) {
+    static HttpStatus attemptInitialSend(MessageCommand message) {
         return makeRequest(message)
     }
 
@@ -36,46 +26,12 @@ class RestUtils {
      * @return The FailedMessage object.  FailedMessage.succeeded = true if a retry succeeded.
      *         FailedMessage.invalid = true if a retry returned a 4xx error
      */
-    static FailedMessage retryMessage(FailedMessage message, int times) {
-        while (!message.succeeded && !message.invalid && times > 0) {
-            HttpStatus status = makeRequest(message.data)
-            if (status.value() < 300) {
-                message.succeeded = true
-            } else if (isInvalid(status)) {
-                message.invalid = true
-            }
+    static HttpStatus retryMessage(MessageCommand message, int times, HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR) {
+        while (!isInvalid(status) && isFailed(status) && times > 0) {
+            status = makeRequest(message)
             times--
         }
-        return message
-    }
-
-    /**
-     * Builds a URL
-     * @param baseUrl
-     * @param path
-     * @param queryParams
-     * @param urlParams
-     * @return URI with all URI params and query params added
-     */
-    static String buildUrl(String baseUrl, String path, Map queryParams, Map urlParams) {
-        return buildUrl("$baseUrl$path", queryParams, urlParams)
-    }
-
-    /**
-     * Builds a URI or URL; host information is not required
-     * @param baseUrl
-     * @param queryParams
-     * @param urlParams
-     * @return URI with all URI params and query params added
-     */
-    static String buildUrl(String baseUrl, Map queryParams, Map urlParams) {
-        String url = baseUrl
-        urlParams?.each { k, v ->
-            url = url.replace(/{$k}/, "$v")
-        }
-        URIBuilder uriBuilder = new URIBuilder(url)
-        if (queryParams) uriBuilder.addQueryParams(queryParams)
-        return uriBuilder.toString()
+        return status
     }
 
     static boolean isInvalid(HttpStatus status) {
@@ -83,11 +39,15 @@ class RestUtils {
     }
 
     static boolean isFailed(HttpStatus status) {
-        400 <= status.value()
+        300 <= status.value()
     }
 
-    private static HttpStatus makeRequest(Map messageData) {
-        switch (messageData.method as HttpMethod) {
+    static boolean isSuccess(HttpStatus status) {
+        200 <= status.value() && status.value() < 300
+    }
+
+    private static HttpStatus makeRequest(MessageCommand messageData) {
+        switch (messageData.httpMethod as HttpMethod) {
             case HttpMethod.POST:
                 return doPost(messageData)
             case HttpMethod.GET:
@@ -99,14 +59,13 @@ class RestUtils {
             case HttpMethod.HEAD:
                 return doHead(messageData)
             default:
-                throw new IllegalArgumentException("HTTP method ${messageData.method} not supported")
+                throw new IllegalArgumentException("HTTP method ${messageData.httpMethod} not supported")
         }
     }
 
-    private static HttpStatus doPost(Map messageData) {
+    private static HttpStatus doPost(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.post(buildUrl(messageData.url as String, messageData.queryParams as Map,
-                messageData.urlParams as Map)) {
+        RestResponse resp = rest.post(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)
@@ -118,10 +77,9 @@ class RestUtils {
         return resp.statusCode
     }
 
-    private static HttpStatus doGet(Map messageData) {
+    private static HttpStatus doGet(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.get(buildUrl(messageData.url as String, messageData.queryParams as Map,
-                messageData.urlParams as Map)) {
+        RestResponse resp = rest.get(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)
@@ -130,10 +88,9 @@ class RestUtils {
         return resp.statusCode
     }
 
-    private static HttpStatus doPut(Map messageData) {
+    private static HttpStatus doPut(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.put(buildUrl(messageData.url as String, messageData.queryParams as Map,
-                messageData.urlParams as Map)) {
+        RestResponse resp = rest.put(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)
@@ -146,10 +103,9 @@ class RestUtils {
 
     }
 
-    private static HttpStatus doDelete(Map messageData) {
+    private static HttpStatus doDelete(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.delete(buildUrl(messageData.url as String, messageData.queryParams as Map,
-                messageData.urlParams as Map)) {
+        RestResponse resp = rest.delete(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)
@@ -158,10 +114,9 @@ class RestUtils {
         return resp.statusCode
     }
 
-    private static HttpStatus doHead(Map messageData) {
+    private static HttpStatus doHead(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.head(buildUrl(messageData.url as String, messageData.queryParams as Map,
-                messageData.urlParams as Map)) {
+        RestResponse resp = rest.head(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)

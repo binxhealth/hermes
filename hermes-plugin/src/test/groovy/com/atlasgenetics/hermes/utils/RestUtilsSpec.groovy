@@ -1,5 +1,6 @@
 package com.atlasgenetics.hermes.utils
 
+import com.atlasgenetics.hermes.message.MessageCommand
 import com.stehno.ersatz.Decoders
 import com.stehno.ersatz.ErsatzServer
 import org.springframework.http.HttpMethod
@@ -10,8 +11,8 @@ import spock.lang.Unroll
 class RestUtilsSpec extends Specification {
 
     static final String TEST_URI = "/test"
-    static final String HEADER_KEY = "ContentType"
-    static final String HEADER_VAL = "application/json"
+    static final String HEADER_KEY = "Header"
+    static final String HEADER_VAL = "headervalue"
     static final String PARAM_KEY = "query"
     static final String PARAM_VAL = "querydata"
     static final Map BODY = [key: "value"]
@@ -54,34 +55,8 @@ class RestUtilsSpec extends Specification {
         HttpStatus.REQUEST_TIMEOUT          || true
         HttpStatus.INTERNAL_SERVER_ERROR    || true
         HttpStatus.NOT_FOUND                || true
-        HttpStatus.PERMANENT_REDIRECT       || false
+        HttpStatus.PERMANENT_REDIRECT       || true
     }
-
-    @Unroll("test buildUri with expected output #expected")
-    void "test buildUri"() {
-        given: "a base uri"
-        String baseUrl = uri
-
-        and: "a set of URL parameters"
-        Map urlParams = urlParameters
-
-        and: "a set of query parameters"
-        Map queryParams = queryParameters
-
-        when: "the data is encoded into a URI"
-        String out = RestUtils.buildUrl(baseUrl, queryParams, urlParams)
-
-        then: "the result is as expected"
-        out == expected
-
-        where:
-        uri                             | urlParameters                             | queryParameters               || expected
-        "/endpoint/{param1}"            | ["param1": "value1"]                      | null                          || "/endpoint/value1"
-        "/endpoint/{param1}/{param2}"   | ["param1": "value1", "param2": "value2"]  | ["q1": "query1"]              || "/endpoint/value1/value2?q1=query1"
-        "/endpoint/{param1}/{param2}"   | ["param1": null, "param2": "value2"]      | ["q1": "query1", "q2": null]  || "/endpoint/null/value2?q1=query1&q2="
-        "/endpoint/{param1}/{param2}"   | ["param1": 1234, "param2": "value2"]      | ["q1": 5678, "q2": "query2"]  || "/endpoint/1234/value2?q1=5678&q2=query2"
-    }
-
 
     void "test makeRequest - GET"() {
         given: "a mock server expecting a GET request"
@@ -100,7 +75,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message data object"
-        Map messageData = buildMessageData(HttpMethod.GET, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(HttpMethod.GET, mock.httpUrl)
 
         when: "the request is sent"
         HttpStatus status = RestUtils.attemptInitialSend(messageData)
@@ -129,7 +104,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message data object"
-        Map messageData = buildMessageData(HttpMethod.PUT, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(HttpMethod.PUT, mock.httpUrl)
 
         when: "the request is sent"
         HttpStatus status = RestUtils.attemptInitialSend(messageData)
@@ -157,7 +132,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message data object"
-        Map messageData = buildMessageData(HttpMethod.POST, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(HttpMethod.POST, mock.httpUrl)
 
         when: "the request is sent"
         HttpStatus status = RestUtils.attemptInitialSend(messageData)
@@ -183,7 +158,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message data object"
-        Map messageData = buildMessageData(HttpMethod.DELETE, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(HttpMethod.DELETE, mock.httpUrl)
 
         when: "the request is sent"
         HttpStatus status = RestUtils.attemptInitialSend(messageData)
@@ -209,7 +184,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message data object"
-        Map messageData = buildMessageData(HttpMethod.HEAD, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(HttpMethod.HEAD, mock.httpUrl)
 
         when: "the request is sent"
         HttpStatus status = RestUtils.attemptInitialSend(messageData)
@@ -218,20 +193,21 @@ class RestUtilsSpec extends Specification {
         status == HttpStatus.OK
     }
 
-    private static buildMessageData(HttpMethod method, String baseUrl) {
+    private static MessageCommand buildMessageData(HttpMethod method, String baseUrl) {
         def headers = [:]
         headers[HEADER_KEY] = HEADER_VAL
         def params = [:]
         params[PARAM_KEY] = PARAM_VAL
 
-        return [
-                method: method.name(),
-                url: "$baseUrl$TEST_URI",
-                headers: headers,
-                queryParams: params,
-                urlParams: [:],
-                body: BODY
-        ]
+        MessageCommand command = new MessageCommand()
+        command.baseUrl = baseUrl
+        command.path = TEST_URI
+        command.urlParams = null
+        command.headers = headers
+        command.queryParams = params
+        command.body = BODY
+        command.httpMethod = method.name()
+        return command
     }
 
 }

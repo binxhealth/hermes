@@ -27,23 +27,11 @@ class RestUtils {
      *         FailedMessage.invalid = true if a retry returned a 4xx error
      */
     static HttpStatus retryMessage(MessageCommand message, int times, HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR) {
-        while (!isInvalid(status) && isFailed(status) && times > 0) {
+        /*while ( && times > 0) {
             status = makeRequest(message)
             times--
-        }
+        }*/
         return status
-    }
-
-    static boolean isInvalid(HttpStatus status) {
-        400 <= status.value() && status.value() < 500
-    }
-
-    static boolean isFailed(HttpStatus status) {
-        300 <= status.value()
-    }
-
-    static boolean isSuccess(HttpStatus status) {
-        200 <= status.value() && status.value() < 300
     }
 
     private static HttpStatus makeRequest(MessageCommand messageData) {

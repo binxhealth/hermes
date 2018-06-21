@@ -9,22 +9,25 @@ class MessageSenderService {
 
     boolean sendMessage(MessageCommand message) {
         HttpStatus status = RestUtils.attemptInitialSend(message)
-        if (RestUtils.isFailed(status)) {
+        if (status.value() >= 300) {
             FailedMessage failedMessage = failedMessageManagerService.createFailedMessage(message, status)
-            return retryFailedMessage(failedMessage)
+            return retryFailedMessage(failedMessage, message)
         }
         return true
     }
 
-    boolean retryFailedMessage(FailedMessage message) {
+    boolean retryFailedMessage(FailedMessage message, MessageCommand command = null) {
+        if (!command) {
+            command = new MessageCommand(message.messageData)
+        }
         if (!message.invalid) {
             // TODO make retry times configurable
-            HttpStatus status = RestUtils.retryMessage(message.data, 5)
-            if (RestUtils.isSuccess(status)) {
+            HttpStatus status = RestUtils.retryMessage(command, 5)
+            message.statusCode = status.value()
+            if (message.isSuccess()) {
                 failedMessageManagerService.purgeMessage(message)
                 return true
             } else {
-                message.invalid = RestUtils.isInvalid(status)
                 failedMessageManagerService.unlockMessage(message)
                 return false
             }

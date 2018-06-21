@@ -7,7 +7,7 @@ class MessageCommandSpec extends Specification {
 
     @Unroll("test buildUri with expected output #expected")
     void "test buildUri"() {
-        given: "a MessageCommand with specific data"
+        given: "a MessageCommand with specific messageData"
         MessageCommand cmd = new MessageCommand()
         cmd.baseUrl = url
         cmd.path = path

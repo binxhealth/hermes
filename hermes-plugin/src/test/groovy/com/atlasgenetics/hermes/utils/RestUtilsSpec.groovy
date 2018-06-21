@@ -17,47 +17,6 @@ class RestUtilsSpec extends Specification {
     static final String PARAM_VAL = "querydata"
     static final Map BODY = [key: "value"]
 
-    @Unroll("test isInvalid with status #httpStatus and expected value #expected")
-    void "test isInvalid"() {
-        given: "a status code"
-        HttpStatus status = httpStatus
-
-        when: "we check its validity"
-        boolean out = RestUtils.isInvalid(status)
-
-        then: "the result is as expected"
-        out == expected
-
-        where:
-        httpStatus                          || expected
-        HttpStatus.OK                       || false
-        HttpStatus.BAD_REQUEST              || true
-        HttpStatus.INTERNAL_SERVER_ERROR    || false
-        HttpStatus.NOT_FOUND                || true
-        HttpStatus.PERMANENT_REDIRECT       || false
-    }
-
-    @Unroll("test isFailed with status #httpStatus and expected value #expected")
-    void "test isFailed"() {
-        given: "a status code"
-        HttpStatus status = httpStatus
-
-        when: "we check if it is a failure"
-        boolean out = RestUtils.isFailed(status)
-
-        then: "the result is as expected"
-        out == expected
-
-        where:
-        httpStatus                          || expected
-        HttpStatus.OK                       || false
-        HttpStatus.BAD_REQUEST              || true
-        HttpStatus.REQUEST_TIMEOUT          || true
-        HttpStatus.INTERNAL_SERVER_ERROR    || true
-        HttpStatus.NOT_FOUND                || true
-        HttpStatus.PERMANENT_REDIRECT       || true
-    }
-
     void "test makeRequest - GET"() {
         given: "a mock server expecting a GET request"
         ErsatzServer mock = new ErsatzServer()
@@ -74,7 +33,7 @@ class RestUtilsSpec extends Specification {
             }
         }
 
-        and: "a message data object"
+        and: "a message messageData object"
         MessageCommand messageData = buildMessageData(HttpMethod.GET, mock.httpUrl)
 
         when: "the request is sent"
@@ -103,7 +62,7 @@ class RestUtilsSpec extends Specification {
             }
         }
 
-        and: "a message data object"
+        and: "a message messageData object"
         MessageCommand messageData = buildMessageData(HttpMethod.PUT, mock.httpUrl)
 
         when: "the request is sent"
@@ -131,7 +90,7 @@ class RestUtilsSpec extends Specification {
             }
         }
 
-        and: "a message data object"
+        and: "a message messageData object"
         MessageCommand messageData = buildMessageData(HttpMethod.POST, mock.httpUrl)
 
         when: "the request is sent"
@@ -157,7 +116,7 @@ class RestUtilsSpec extends Specification {
             }
         }
 
-        and: "a message data object"
+        and: "a message messageData object"
         MessageCommand messageData = buildMessageData(HttpMethod.DELETE, mock.httpUrl)
 
         when: "the request is sent"
@@ -183,7 +142,7 @@ class RestUtilsSpec extends Specification {
             }
         }
 
-        and: "a message data object"
+        and: "a message messageData object"
         MessageCommand messageData = buildMessageData(HttpMethod.HEAD, mock.httpUrl)
 
         when: "the request is sent"

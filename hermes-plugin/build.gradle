@@ -6,6 +6,7 @@ buildscript {
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.14.2"
+        classpath "org.grails.plugins:hibernate5:6.0.3"
     }
 }
 
@@ -21,6 +22,7 @@ apply plugin:"org.grails.grails-gsp"
 
 repositories {
     mavenLocal()
+    jcenter()
     maven { url "https://repo.grails.org/grails/core" }
 }
 
@@ -60,13 +62,14 @@ dependencies {
         exclude group: 'xerces'
     }
 
-    // Postgres
-    compile 'org.grails.plugins:postgresql-extensions:5.2.0'
-    runtime "org.postgresql:postgresql:42.2.2.jre7"
+    // hibernate
+    compile "org.grails.plugins:hibernate5"
+    compile "org.hibernate:hibernate-core:5.1.5.Final"
+    compile "org.hibernate:hibernate-ehcache:5.1.5.Final"
 
-    // Liquibase
-    compile 'org.grails.plugins:database-migration:3.0.3'
-    compile 'org.liquibase:liquibase-core:3.5.3'
+    // Postgres
+    compile 'org.grails.plugins:postgresql-extensions:4.6.1'
+    provided "org.postgresql:postgresql:42.2.2.jre7"
 
     // Mock server for testing outgoing requests
     testCompile 'com.stehno.ersatz:ersatz:1.5.0'

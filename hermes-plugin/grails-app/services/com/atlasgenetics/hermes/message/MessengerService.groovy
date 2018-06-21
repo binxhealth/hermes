@@ -13,7 +13,8 @@ class MessengerService {
      * multipart forms or PATCH requests.  Please see {@link MessageCommand} for validation rules.
      * @param httpMethod
      * @param baseUrl This can include the path, or the path can be submitted as a separate parameter.  If the URL
-     *        contains URL parameters, they should be wrapped in curly braces, e.g. http://test.com/foo/{bar}, where bar is the URL parameter
+     *        contains URL parameters, they should be wrapped in curly braces, e.g. http://test.com/foo/{bar}, where
+     *        bar is the URL parameter
      * @param path (optional) If the URL contains URL parameters, they should be wrapped in curly braces, e.g.
      *        http://test.com/foo/{bar}, where bar is the URL parameter
      * @param headers

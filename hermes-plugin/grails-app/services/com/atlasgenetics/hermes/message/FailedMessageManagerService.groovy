@@ -2,16 +2,15 @@ package com.atlasgenetics.hermes.message
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.Synchronized
-import org.springframework.http.HttpStatus
 
 @Transactional
 class FailedMessageManagerService {
 
-    FailedMessage createFailedMessage(MessageCommand messageData, HttpStatus status) {
+    FailedMessage createFailedMessage(MessageCommand messageData, int statusCode) {
         FailedMessage message = new FailedMessage()
         message.messageData = messageData.properties
         message.locked = true
-        message.statusCode = status.value()
+        message.statusCode = statusCode
         message.save(failOnError: true)
     }
 

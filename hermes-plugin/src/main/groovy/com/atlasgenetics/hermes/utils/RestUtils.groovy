@@ -5,7 +5,6 @@ import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
 
 @CompileStatic
 class RestUtils {
@@ -15,7 +14,7 @@ class RestUtils {
      * @param message
      * @return the HttpStatus of the response
      */
-    static HttpStatus attemptInitialSend(MessageCommand message) {
+    static int attemptInitialSend(MessageCommand message) {
         return makeRequest(message)
     }
 
@@ -26,15 +25,27 @@ class RestUtils {
      * @return The FailedMessage object.  FailedMessage.succeeded = true if a retry succeeded.
      *         FailedMessage.invalid = true if a retry returned a 4xx error
      */
-    static HttpStatus retryMessage(MessageCommand message, int times, HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR) {
-        /*while ( && times > 0) {
-            status = makeRequest(message)
+    static int retryMessage(MessageCommand command, int times, int statusCode) {
+        while (isFailureCode(statusCode) && !isInvalidMessageCode(statusCode) && times > 0) {
+            statusCode = makeRequest(command)
             times--
-        }*/
-        return status
+        }
+        return statusCode
     }
 
-    private static HttpStatus makeRequest(MessageCommand messageData) {
+    static boolean isFailureCode(int statusCode) {
+        300 <= statusCode
+    }
+
+    static boolean isInvalidMessageCode(int statusCode) {
+        300 <= statusCode && statusCode < 500
+    }
+
+    static boolean isSuccessCode(int statusCode) {
+        200 <= statusCode && statusCode < 300
+    }
+
+    private static int makeRequest(MessageCommand messageData) {
         switch (messageData.httpMethod as HttpMethod) {
             case HttpMethod.POST:
                 return doPost(messageData)
@@ -51,7 +62,7 @@ class RestUtils {
         }
     }
 
-    private static HttpStatus doPost(MessageCommand messageData) {
+    private static int doPost(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
         RestResponse resp = rest.post(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
@@ -62,10 +73,10 @@ class RestUtils {
                 messageData.body
             }
         }
-        return resp.statusCode
+        return resp.statusCode.value()
     }
 
-    private static HttpStatus doGet(MessageCommand messageData) {
+    private static int doGet(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
         RestResponse resp = rest.get(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
@@ -73,10 +84,10 @@ class RestUtils {
                 header(k, v)
             }
         }
-        return resp.statusCode
+        return resp.statusCode.value()
     }
 
-    private static HttpStatus doPut(MessageCommand messageData) {
+    private static int doPut(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
         RestResponse resp = rest.put(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
@@ -87,11 +98,11 @@ class RestUtils {
                 messageData.body
             }
         }
-        return resp.statusCode
+        return resp.statusCode.value()
 
     }
 
-    private static HttpStatus doDelete(MessageCommand messageData) {
+    private static int doDelete(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
         RestResponse resp = rest.delete(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
@@ -99,10 +110,10 @@ class RestUtils {
                 header(k, v)
             }
         }
-        return resp.statusCode
+        return resp.statusCode.value()
     }
 
-    private static HttpStatus doHead(MessageCommand messageData) {
+    private static int doHead(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
         RestResponse resp = rest.head(messageData.builtUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
@@ -110,7 +121,7 @@ class RestUtils {
                 header(k, v)
             }
         }
-        return resp.statusCode
+        return resp.statusCode.value()
     }
 
 }

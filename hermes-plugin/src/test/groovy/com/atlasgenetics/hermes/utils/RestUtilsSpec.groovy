@@ -17,6 +17,59 @@ class RestUtilsSpec extends Specification {
     static final String PARAM_VAL = "querydata"
     static final Map BODY = [key: "value"]
 
+    @Unroll("test isInvalid with status #httpStatus and expected value #expected")
+    void "test isInvalid"() {
+        when: "we check a code for validity"
+        boolean out = RestUtils.isInvalidMessageCode(httpStatus.value())
+
+        then: "the result is as expected"
+        out == expected
+
+        where:
+        httpStatus                          || expected
+        HttpStatus.OK                       || false
+        HttpStatus.BAD_REQUEST              || true
+        HttpStatus.INTERNAL_SERVER_ERROR    || false
+        HttpStatus.NOT_FOUND                || true
+        HttpStatus.PERMANENT_REDIRECT       || true
+    }
+
+    @Unroll("test isFailed with status #httpStatus and expected value #expected")
+    void "test isFailed"() {
+        when: "we check if a code is a failure"
+        boolean out = RestUtils.isFailureCode(httpStatus.value())
+
+        then: "the result is as expected"
+        out == expected
+
+        where:
+        httpStatus                          || expected
+        HttpStatus.OK                       || false
+        HttpStatus.BAD_REQUEST              || true
+        HttpStatus.REQUEST_TIMEOUT          || true
+        HttpStatus.INTERNAL_SERVER_ERROR    || true
+        HttpStatus.NOT_FOUND                || true
+        HttpStatus.PERMANENT_REDIRECT       || true
+    }
+
+    @Unroll("test isSucceeded with status #httpStatus and expected value #expected")
+    void "test isSucceeded"() {
+        when: "we check if a code is a success"
+        boolean out = RestUtils.isSuccessCode(httpStatus.value())
+
+        then: "the result is as expected"
+        out == expected
+
+        where:
+        httpStatus                          || expected
+        HttpStatus.OK                       || true
+        HttpStatus.BAD_REQUEST              || false
+        HttpStatus.REQUEST_TIMEOUT          || false
+        HttpStatus.INTERNAL_SERVER_ERROR    || false
+        HttpStatus.NOT_FOUND                || false
+        HttpStatus.PERMANENT_REDIRECT       || false
+    }
+
     void "test makeRequest - GET"() {
         given: "a mock server expecting a GET request"
         ErsatzServer mock = new ErsatzServer()

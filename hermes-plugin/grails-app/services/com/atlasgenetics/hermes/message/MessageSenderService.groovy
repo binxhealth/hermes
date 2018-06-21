@@ -1,15 +1,14 @@
 package com.atlasgenetics.hermes.message
 
 import com.atlasgenetics.hermes.utils.RestUtils
-import org.springframework.http.HttpStatus
 
 class MessageSenderService {
 
     def failedMessageManagerService
 
     boolean sendMessage(MessageCommand message) {
-        HttpStatus status = RestUtils.attemptInitialSend(message)
-        if (status.value() >= 300) {
+        int status = RestUtils.attemptInitialSend(message)
+        if (RestUtils.isFailureCode(status)) {
             FailedMessage failedMessage = failedMessageManagerService.createFailedMessage(message, status)
             return retryFailedMessage(failedMessage, message)
         }
@@ -22,9 +21,9 @@ class MessageSenderService {
         }
         if (!message.invalid) {
             // TODO make retry times configurable
-            HttpStatus status = RestUtils.retryMessage(command, 5)
-            message.statusCode = status.value()
-            if (message.isSuccess()) {
+            int statusCode = RestUtils.retryMessage(command, 5, message.statusCode)
+            message.statusCode = statusCode
+            if (message.succeeded) {
                 failedMessageManagerService.purgeMessage(message)
                 return true
             } else {

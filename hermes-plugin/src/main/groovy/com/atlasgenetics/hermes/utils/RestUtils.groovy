@@ -6,13 +6,18 @@ import grails.plugins.rest.client.RestResponse
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpMethod
 
+/**
+ * This class houses the actual logic that builds and sends HTTP requests.
+ *
+ * @author Maura Warner
+ */
 @CompileStatic
 class RestUtils {
 
     /**
      * Makes an HTTP request.
      * @param message
-     * @return the HttpStatus of the response
+     * @return the HTTP status code of the response
      */
     static int attemptInitialSend(MessageCommand message) {
         return makeRequest(message)
@@ -20,10 +25,9 @@ class RestUtils {
 
     /**
      * Retries a failed HTTP request up to a given number of times.
-     * @param message The failed message
+     * @param command The failed message
      * @param times The desired maximum number of retry attempts
-     * @return The FailedMessage object.  FailedMessage.succeeded = true if a retry succeeded.
-     *         FailedMessage.invalid = true if a retry returned a 4xx error
+     * @return the HTTP status code of the last response received
      */
     static int retryMessage(MessageCommand command, int times, int statusCode) {
         while (isFailureCode(statusCode) && !isInvalidMessageCode(statusCode) && times > 0) {

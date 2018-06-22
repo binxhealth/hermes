@@ -1,11 +1,17 @@
 package com.atlasgenetics.hermes.message
 
 import com.atlasgenetics.hermes.utils.RestUtils
+import grails.core.GrailsApplication
 
+/**
+ * This service orchestrates the sending of HTTP requests throughout the message send and retry process.
+ *
+ * @author Maura Warner
+ */
 class MessageSenderService {
 
-    def failedMessageManagerService
-    def grailsApplication
+    FailedMessageManagerService failedMessageManagerService
+    GrailsApplication grailsApplication
 
     boolean sendMessage(MessageCommand message) {
         int status = RestUtils.attemptInitialSend(message)

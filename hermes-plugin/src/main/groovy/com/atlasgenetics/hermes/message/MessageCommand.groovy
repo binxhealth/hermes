@@ -4,6 +4,9 @@ import grails.validation.Validateable
 import groovyx.net.http.URIBuilder
 import org.springframework.http.HttpMethod
 
+/**
+ * This Command object provides validation for message data, as well as some convenient methods.
+ */
 class MessageCommand implements Validateable {
 
     String baseUrl
@@ -33,6 +36,10 @@ class MessageCommand implements Validateable {
         return builtUrl
     }
 
+    /**
+     * Helper method; puts the message data into a format that can be easily serialized into JSONB data for Postgres.
+     * @return MessageCommand data as Map
+     */
     Map toMap() {
         [
                 baseUrl: baseUrl,
@@ -47,12 +54,13 @@ class MessageCommand implements Validateable {
     }
 
     /**
-     * Builds a URL
+     * Builds a URL, handling any and all URL encoding, and checking for leading or trailing slashes on the baseUrl and
+     * path params and concatenating them intelligently.
      * @param baseUrl
      * @param path (optional)
      * @param queryParams (optional)
      * @param urlParams (optional)
-     * @return URI with all URI params and query params added
+     * @return URI with all URL params and query params inserted and encoded appropriately
      */
     private String buildUrl() {
         String url

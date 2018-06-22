@@ -3,6 +3,11 @@ package com.atlasgenetics.hermes.message
 import grails.gorm.transactions.Transactional
 import groovy.transform.Synchronized
 
+/**
+ * This service handles any and all changes to FailedMessage data, including creation and deletion of specific messages.
+ *
+ * @author Maura Warner
+ */
 @Transactional
 class FailedMessageManagerService {
 

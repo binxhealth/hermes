@@ -8,3 +8,11 @@ From the project root directory:
 `$ grails install`
 
 You should now be able to find the plugin in your `~/.m2` directory and install it as a dependency into any of your local Grails apps.
+
+## Configuration
+
+To set the maximum number of times Hermes should attempt to send a failed message during the retry process, set the following application config property:
+
+`com.atlasgenetics.hermes.retryTimes`
+
+The default value is 5.

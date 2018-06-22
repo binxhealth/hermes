@@ -68,7 +68,7 @@ dependencies {
     compile "org.hibernate:hibernate-ehcache:5.1.5.Final"
 
     // Postgres
-    compile 'org.grails.plugins:postgresql-extensions:4.6.1'
+    compile 'org.grails.plugins:postgresql-extensions:4.7.0'
     provided "org.postgresql:postgresql:42.2.2.jre7"
 
     // Mock server for testing outgoing requests

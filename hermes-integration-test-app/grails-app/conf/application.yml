@@ -96,7 +96,7 @@ dataSource:
     username: atlas
     password: kittens
     url: jdbc:postgresql://localhost:5432/atlas
-    dbCreate: create-drop
+    dbCreate: update
 
 environments:
     production:

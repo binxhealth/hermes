@@ -33,6 +33,19 @@ class MessageCommand implements Validateable {
         return builtUrl
     }
 
+    Map toMap() {
+        [
+                baseUrl: baseUrl,
+                path: path,
+                builtUrl: builtUrl,
+                httpMethod: httpMethod,
+                headers: headers,
+                queryParams: queryParams,
+                urlParams: urlParams,
+                body: body
+        ]
+    }
+
     /**
      * Builds a URL
      * @param baseUrl
@@ -41,7 +54,7 @@ class MessageCommand implements Validateable {
      * @param urlParams (optional)
      * @return URI with all URI params and query params added
      */
-    private void buildUrl() {
+    private String buildUrl() {
         String url
         if (path) {
             if (baseUrl.endsWith('/') && path.startsWith('/')) {

@@ -6,7 +6,7 @@ import net.kaleidos.hibernate.usertype.JsonbMapType
 class FailedMessage {
 
     Map messageData
-    Date dateCreated
+    Date dateCreated = new Date()
     Date lastUpdated
     int statusCode
     boolean locked

@@ -10,14 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired
 trait HermesRetryFailedMessageJobTrait {
 
     @Autowired
-    def failedMessageService
+    FailedMessageManagerService failedMessageManagerService
     @Autowired
-    def sendMessageService
+    MessageSenderService messageSenderService
 
     void retryFailedMessages() {
-        Set<FailedMessage> messagesToRetry = failedMessageService.gatherAndLockFailedMessagesForRetry()
+        Set<FailedMessage> messagesToRetry = failedMessageManagerService.gatherAndLockFailedMessagesForRetry()
         messagesToRetry.each {
-            sendMessageService.retryFailedMessage(it)
+            messageSenderService.retryFailedMessage(it)
         }
     }
 }

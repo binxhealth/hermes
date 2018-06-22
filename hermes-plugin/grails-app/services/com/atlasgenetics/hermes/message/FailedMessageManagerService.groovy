@@ -8,7 +8,7 @@ class FailedMessageManagerService {
 
     FailedMessage createFailedMessage(MessageCommand messageData, int statusCode) {
         FailedMessage message = new FailedMessage()
-        message.messageData = messageData.properties
+        message.messageData = messageData.toMap()
         message.locked = true
         message.statusCode = statusCode
         message.save(failOnError: true)
@@ -16,7 +16,7 @@ class FailedMessageManagerService {
 
     @Synchronized
     Set<FailedMessage> gatherAndLockFailedMessagesForRetry() {
-        Set<FailedMessage> messages = FailedMessage.findAllByLockedAndInvalid(false, false)
+        Set<FailedMessage> messages = FailedMessage.findAllByLockedAndStatusCodeGreaterThan(false, 499)
         messages*.locked = true
         return messages
     }

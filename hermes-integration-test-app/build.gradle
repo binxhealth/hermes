@@ -59,9 +59,17 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 
+    // Postgres
+    compile 'org.grails.plugins:postgresql-extensions:4.7.0'
     runtime "org.postgresql:postgresql:42.2.2.jre7"
 
+    // Hermes plugin
     compile project(':hermes')
+
+    // Hamcrest (Ersatz dependency)
+    testCompile 'org.hamcrest:hamcrest-library:1.4-atlassian-1'
+    // Mock server for testing outgoing requests
+    testCompile 'com.stehno.ersatz:ersatz:1.6.2:safe@jar'
 }
 
 bootRun {

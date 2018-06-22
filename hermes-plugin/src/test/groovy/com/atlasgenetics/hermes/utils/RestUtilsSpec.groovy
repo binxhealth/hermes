@@ -1,6 +1,7 @@
 package com.atlasgenetics.hermes.utils
 
 import com.atlasgenetics.hermes.message.MessageCommand
+import com.stehno.ersatz.ContentType
 import com.stehno.ersatz.Decoders
 import com.stehno.ersatz.ErsatzServer
 import org.springframework.http.HttpMethod
@@ -10,11 +11,14 @@ import spock.lang.Unroll
 
 class RestUtilsSpec extends Specification {
 
-    static final String TEST_URI = "/test"
+    static final String TEST_URI = "/test/$URL_PARAM_VAL"
+    static final String TEST_PATH = "/test/{$URL_PARAM_KEY}"
     static final String HEADER_KEY = "Header"
     static final String HEADER_VAL = "headervalue"
-    static final String PARAM_KEY = "query"
-    static final String PARAM_VAL = "querydata"
+    static final String QUERY_KEY = "query"
+    static final String QUERY_VAL = "querydata"
+    static final String URL_PARAM_KEY = "foo"
+    static final String URL_PARAM_VAL = "bar"
     static final Map BODY = [key: "value"]
 
     @Unroll("test isInvalid with status #httpStatus and expected value #expected")
@@ -72,10 +76,10 @@ class RestUtilsSpec extends Specification {
 
     void "test makeRequest - GET"() {
         given: "a mock server expecting a GET request"
-        ErsatzServer mock = new ErsatzServer()
+        ErsatzServer mock = newErsatzServer()
         mock.expectations {
             get(TEST_URI) {
-                query(PARAM_KEY, PARAM_VAL)
+                query(QUERY_KEY, QUERY_VAL)
                 header(HEADER_KEY, HEADER_VAL)
 
                 responder {
@@ -90,22 +94,20 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(HttpMethod.GET, mock.httpUrl)
 
         when: "the request is sent"
-        HttpStatus status = RestUtils.attemptInitialSend(messageData)
+        int status = RestUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
-        status == HttpStatus.OK
+        status == HttpStatus.OK.value()
     }
 
     void "test makeRequest - PUT"() {
         given: "a mock server expecting a PUT request"
-        ErsatzServer mock = new ErsatzServer()
-        // I can't believe we have to set this...
-        mock.decoder('application/json', Decoders.parseJson)
+        ErsatzServer mock = newErsatzServer()
         mock.expectations {
             put(TEST_URI) {
-                query PARAM_KEY, PARAM_VAL
+                query QUERY_KEY, QUERY_VAL
                 header HEADER_KEY, HEADER_VAL
-                body BODY, 'application/json'
+                body BODY, ContentType.APPLICATION_JSON.value
 
                 responder {
                     code HttpStatus.OK.value()
@@ -119,21 +121,20 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(HttpMethod.PUT, mock.httpUrl)
 
         when: "the request is sent"
-        HttpStatus status = RestUtils.attemptInitialSend(messageData)
+        int status = RestUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
-        status == HttpStatus.OK
+        status == HttpStatus.OK.value()
     }
 
     void "test makeRequest - POST"() {
         given: "a mock server expecting a POST request"
-        ErsatzServer mock = new ErsatzServer()
-        mock.decoder('application/json', Decoders.parseJson)
+        ErsatzServer mock = newErsatzServer()
         mock.expectations {
             post(TEST_URI) {
-                query PARAM_KEY, PARAM_VAL
+                query QUERY_KEY, QUERY_VAL
                 header HEADER_KEY, HEADER_VAL
-                body BODY, 'application/json'
+                body BODY, ContentType.APPLICATION_JSON.value
 
                 responder {
                     code HttpStatus.OK.value()
@@ -147,18 +148,18 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(HttpMethod.POST, mock.httpUrl)
 
         when: "the request is sent"
-        HttpStatus status = RestUtils.attemptInitialSend(messageData)
+        int status = RestUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
-        status == HttpStatus.OK
+        status == HttpStatus.OK.value()
     }
 
     void "test makeRequest - DELETE"() {
         given: "a mock server expecting a DELETE request"
-        ErsatzServer mock = new ErsatzServer()
+        ErsatzServer mock = newErsatzServer()
         mock.expectations {
             delete(TEST_URI) {
-                query(PARAM_KEY, PARAM_VAL)
+                query(QUERY_KEY, QUERY_VAL)
                 header(HEADER_KEY, HEADER_VAL)
 
                 responder {
@@ -173,18 +174,18 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(HttpMethod.DELETE, mock.httpUrl)
 
         when: "the request is sent"
-        HttpStatus status = RestUtils.attemptInitialSend(messageData)
+        int status = RestUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
-        status == HttpStatus.OK
+        status == HttpStatus.OK.value()
     }
 
     void "test makeRequest - HEAD"() {
         given: "a mock server expecting a HEAD request"
-        ErsatzServer mock = new ErsatzServer()
+        ErsatzServer mock = newErsatzServer()
         mock.expectations {
             head(TEST_URI) {
-                query(PARAM_KEY, PARAM_VAL)
+                query(QUERY_KEY, QUERY_VAL)
                 header(HEADER_KEY, HEADER_VAL)
 
                 responder {
@@ -199,27 +200,40 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(HttpMethod.HEAD, mock.httpUrl)
 
         when: "the request is sent"
-        HttpStatus status = RestUtils.attemptInitialSend(messageData)
+        int status = RestUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
-        status == HttpStatus.OK
+        status == HttpStatus.OK.value()
     }
 
     private static MessageCommand buildMessageData(HttpMethod method, String baseUrl) {
         def headers = [:]
         headers[HEADER_KEY] = HEADER_VAL
-        def params = [:]
-        params[PARAM_KEY] = PARAM_VAL
+        def queryParams = [:]
+        queryParams[QUERY_KEY] = QUERY_VAL
+        def urlParams = [:]
+        urlParams[URL_PARAM_KEY] = URL_PARAM_VAL
 
         MessageCommand command = new MessageCommand()
         command.baseUrl = baseUrl
-        command.path = TEST_URI
-        command.urlParams = null
+        command.path = TEST_PATH
+        command.urlParams = urlParams
         command.headers = headers
-        command.queryParams = params
+        command.queryParams = queryParams
         command.body = BODY
         command.httpMethod = method.name()
         return command
+    }
+
+    /**
+     * Ersatz provides a default application/json decoder, but does not associate the decoder with the 'application/json'
+     * content type by default (for some reason...), so we have to do it manually.
+     * @return new ErsatzServer instance with the application/json decoder appropriately mapped
+     */
+    private static ErsatzServer newErsatzServer() {
+        ErsatzServer mock = new ErsatzServer()
+        mock.decoder(ContentType.APPLICATION_JSON.value, Decoders.parseJson)
+        return mock
     }
 
 }

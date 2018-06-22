@@ -5,6 +5,7 @@ import com.atlasgenetics.hermes.utils.RestUtils
 class MessageSenderService {
 
     def failedMessageManagerService
+    def grailsApplication
 
     boolean sendMessage(MessageCommand message) {
         int status = RestUtils.attemptInitialSend(message)
@@ -20,8 +21,8 @@ class MessageSenderService {
             command = new MessageCommand(message.messageData)
         }
         if (!message.invalid) {
-            // TODO make retry times configurable
-            int statusCode = RestUtils.retryMessage(command, 5, message.statusCode)
+            int times = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes') as Integer ?: 5
+            int statusCode = RestUtils.retryMessage(command, times, message.statusCode)
             message.statusCode = statusCode
             if (message.succeeded) {
                 failedMessageManagerService.purgeMessage(message)

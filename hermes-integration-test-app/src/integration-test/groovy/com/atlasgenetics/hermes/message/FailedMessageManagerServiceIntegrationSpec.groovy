@@ -71,7 +71,7 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
 
         and: "the message data is still available"
         failedMessage.messageData
-        failedMessage.messageData.baseUrl == command.url
+        failedMessage.messageData.url == command.url
         failedMessage.messageData.httpMethod == command.httpMethod
     }
 

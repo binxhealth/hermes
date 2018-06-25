@@ -34,8 +34,7 @@ class SampleRetryFailedMessageJobServiceIntegrationSpec extends Specification {
         and: "a FailedMessage ready for retry containing the appropriate data"
         MessageCommand cmd = new MessageCommand()
         cmd.httpMethod = HttpMethod.GET
-        cmd.baseUrl = mock.httpUrl
-        cmd.path = TEST_URI
+        cmd.url = "${mock.httpUrl}$TEST_URI"
 
         FailedMessage message = new FailedMessage()
         message.messageData = cmd.toMap()

@@ -20,9 +20,9 @@ class FailedMessageMonitorService {
      * @param createdAfter Date
      * @param updatedBefore Date
      * @param updatedAfter Date
-     * @param urlRegEx String, case-sensitive
+     * @param urlRegEx String, must be formatted as a PostgreSQL regular expression
      * @param locked Boolean
-     * @param statusCodes List<int>
+     * @param statusCodes List<Integer>
      * @param httpMethod String, must be in all caps e.g. 'GET', 'POST'
      * @param orderByProp String, name of the property to order the result set by.  Must be a valid property of FailedMessage; cannot be a property of messageData
      * @param ascDesc String, 'asc' or 'desc' (indicating how to order result set); default value is 'desc'

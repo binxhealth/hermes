@@ -23,7 +23,7 @@ class FailedMessageMonitorService {
      * @param urlRegEx String, case-sensitive
      * @param locked Boolean
      * @param statusCodes List<int>
-     * @param httpMethods List<String>, must be in all caps e.g. 'GET', 'POST'
+     * @param httpMethod String, must be in all caps e.g. 'GET', 'POST'
      * @param orderByProp String, name of the property to order the result set by.  Must be a valid property of FailedMessage; cannot be a property of messageData
      * @param ascDesc String, 'asc' or 'desc' (indicating how to order result set); default value is 'desc'
      * @return Set<FailedMessage> query result set
@@ -37,7 +37,7 @@ class FailedMessageMonitorService {
             if (args?.urlRegEx) pgJson('messageData', '->>', 'url', 'like', args.urlRegEx)
             if (args?.statusCodes) 'in'('statusCode', args.statusCodes)
             if (args?.locked != null) eq('locked', args.locked)
-            if (args?.httpMethods) pgJson('messageData', '->>', 'httpMethod', 'in', args.httpMethods)
+            if (args?.httpMethod) pgJson('messageData', '->>', 'httpMethod', '=', args.httpMethod)
             if (args?.orderByProp) order(args.orderByProp, args.ascDesc ?: 'desc')
         } as List<FailedMessage>
     }
@@ -47,7 +47,7 @@ class FailedMessageMonitorService {
      * @param args
      * @return FailedMessages created over 24 hours ago
      */
-    List<FailedMessage> getFailedMessagesMoreThanOneDayOld(Map args = [:]) {
+    List<FailedMessage> getMessagesMoreThanOneDayOld(Map args = [:]) {
         use(TimeCategory) {
             args.createdBefore = new Date() - 1.day
             return listFailedMessages(args)
@@ -59,8 +59,8 @@ class FailedMessageMonitorService {
      * @param args
      * @return FailedMessages that failed with a 3xx status code
      */
-    List<FailedMessage> getRedirectedMessages(Map args = null) {
-        return getAllMessagesWithStatusCodeInRange(args, 300, 400)
+    List<FailedMessage> getRedirectedMessages(Map args = [:]) {
+        return getMessagesWithStatusCodeInRange(300, 399, args)
     }
 
     /**
@@ -68,8 +68,8 @@ class FailedMessageMonitorService {
      * @param args
      * @return FailedMessages that failed with a 3xx or 4xx status code
      */
-    List<FailedMessage> getInvalidMessages(Map args = null) {
-        return getAllMessagesWithStatusCodeInRange(args, 300, 500)
+    List<FailedMessage> getInvalidMessages(Map args = [:]) {
+        return getMessagesWithStatusCodeInRange(300, 499, args)
     }
 
     /**
@@ -77,20 +77,22 @@ class FailedMessageMonitorService {
      * @param args
      * @return FailedMessages that failed with a 5xx status code
      */
-    List<FailedMessage> getValidMessages(Map args = null) {
-        return getAllMessagesWithStatusCodeInRange(args, 500)
+    List<FailedMessage> getValidMessages(Map args = [:]) {
+        return getMessagesWithStatusCodeInRange(500, 1000, args)
     }
 
     /**
      * Convenience method.  Populate {@param args} to specify additional criteria.
      * @param args
-     * @param greaterThan
-     * @param lessThan
+     * @param lowerBound Greater than or equal to >=
+     * @param upperBound Less than or equal to <=
      * @return FailedMessages that failed with status codes in the specified range
      */
-    List<FailedMessage> getAllMessagesWithStatusCodeInRange(Map args, int greaterThan, int lessThan = 600) {
-        if (!args) args = [:]
-        args.statusCodes = [greaterThan..lessThan]
+    List<FailedMessage> getMessagesWithStatusCodeInRange(int lowerBound, int upperBound, Map args = [:]) {
+        if (args == null) args = [:]
+        List<Integer> range = []
+        range.addAll(lowerBound..upperBound)
+        args.statusCodes = range
         return listFailedMessages(args)
     }
 

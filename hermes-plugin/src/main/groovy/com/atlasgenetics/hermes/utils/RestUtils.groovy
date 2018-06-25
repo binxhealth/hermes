@@ -78,7 +78,7 @@ class RestUtils {
                 messageData.body
             }
         }
-        return resp.statusCode.value()
+        return resp.status
     }
 
     private static int doGet(MessageCommand messageData) {
@@ -89,7 +89,7 @@ class RestUtils {
                 header(k, v)
             }
         }
-        return resp.statusCode.value()
+        return resp.status
     }
 
     private static int doPut(MessageCommand messageData) {
@@ -103,7 +103,7 @@ class RestUtils {
                 messageData.body
             }
         }
-        return resp.statusCode.value()
+        return resp.status
 
     }
 
@@ -115,7 +115,7 @@ class RestUtils {
                 header(k, v)
             }
         }
-        return resp.statusCode.value()
+        return resp.status
     }
 
     private static int doHead(MessageCommand messageData) {
@@ -126,7 +126,7 @@ class RestUtils {
                 header(k, v)
             }
         }
-        return resp.statusCode.value()
+        return resp.status
     }
 
 }

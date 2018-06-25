@@ -53,8 +53,7 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
         given: "A MessageComand"
         MessageCommand command = new MessageCommand()
         command.httpMethod = HttpMethod.GET
-        command.baseUrl = "http://www.test.example.com"
-        command.path = "/endpoint"
+        command.url = "http://www.test.example.com"
 
         and: "an HTTP status code"
         int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value()
@@ -72,8 +71,7 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
 
         and: "the message data is still available"
         failedMessage.messageData
-        failedMessage.messageData.baseUrl == command.baseUrl
-        failedMessage.messageData.path == command.path
+        failedMessage.messageData.baseUrl == command.url
         failedMessage.messageData.httpMethod == command.httpMethod
     }
 

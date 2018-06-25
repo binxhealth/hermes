@@ -14,13 +14,11 @@ import spock.lang.Specification
 class MessengerServiceFunctionalSpec extends Specification {
 
     def messengerService
+    def grailsApplication
 
-    static final String URL_PARAM_KEY = "param"
-    static final String URL_PARAM_VAL = "value"
-    static final String TEST_PATH = "/endpoint/{$URL_PARAM_KEY}"
     static final String QUERY_PARAM_KEY = "q"
     static final String QUERY_PARAM_VAL = "query"
-    static final String TEST_URI = "/endpoint/$URL_PARAM_VAL"
+    static final String TEST_URI = "/endpoint"
     static final Map TEST_BODY = [foo: "bar"]
     static final String TEST_HEADER_KEY = "Header"
     static final String TEST_HEADER_VAL = "Data"
@@ -46,12 +44,10 @@ class MessengerServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-        Map urlParams = [:]
-        urlParams[URL_PARAM_KEY] = URL_PARAM_VAL
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.GET, baseUrl, TEST_PATH, headers, urlParams,
+            boolean out = messengerService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -94,12 +90,10 @@ class MessengerServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-        Map urlParams = [:]
-        urlParams[URL_PARAM_KEY] = URL_PARAM_VAL
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.PUT, baseUrl, TEST_PATH, headers, urlParams,
+            boolean out = messengerService.makeRequest(HttpMethod.PUT, "$baseUrl$TEST_URI", headers,
                     queryParams, TEST_BODY)
             session.flush()
             return out
@@ -142,12 +136,10 @@ class MessengerServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-        Map urlParams = [:]
-        urlParams[URL_PARAM_KEY] = URL_PARAM_VAL
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.POST, baseUrl, TEST_PATH, headers, urlParams,
+            boolean out = messengerService.makeRequest(HttpMethod.POST, "$baseUrl$TEST_URI", headers,
                     queryParams, TEST_BODY)
             session.flush()
             return out
@@ -189,12 +181,10 @@ class MessengerServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-        Map urlParams = [:]
-        urlParams[URL_PARAM_KEY] = URL_PARAM_VAL
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.HEAD, baseUrl, TEST_PATH, headers, urlParams,
+            boolean out = messengerService.makeRequest(HttpMethod.HEAD, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -236,12 +226,10 @@ class MessengerServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-        Map urlParams = [:]
-        urlParams[URL_PARAM_KEY] = URL_PARAM_VAL
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.DELETE, baseUrl, TEST_PATH, headers, urlParams,
+            boolean out = messengerService.makeRequest(HttpMethod.DELETE, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -283,12 +271,13 @@ class MessengerServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-        Map urlParams = [:]
-        urlParams[URL_PARAM_KEY] = URL_PARAM_VAL
+
+        and: "override the retryInterval default so the test runs faster"
+        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.GET, baseUrl, TEST_PATH, headers, urlParams,
+            boolean out = messengerService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -303,7 +292,7 @@ class MessengerServiceFunctionalSpec extends Specification {
         and: "a FailedMessage was created in the database"
         def results = FailedMessage.withSession {
             FailedMessage.withCriteria {
-                pgJsonHasFieldValue 'messageData', 'baseUrl', baseUrl
+                pgJsonHasFieldValue 'messageData', 'url', "$baseUrl$TEST_URI"
             }
         }
         results

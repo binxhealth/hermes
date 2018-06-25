@@ -30,7 +30,8 @@ class FailedMessageManagerService {
         message.delete(failOnError: true)
     }
 
-    void unlockMessage(FailedMessage message) {
+    void completeFailedRetryProcess(FailedMessage message, int finalStatusCode) {
+        message.statusCode = finalStatusCode
         message.locked = false
         message.save(failOnError: true)
     }

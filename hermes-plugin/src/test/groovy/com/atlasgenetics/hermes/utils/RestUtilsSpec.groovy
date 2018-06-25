@@ -11,14 +11,11 @@ import spock.lang.Unroll
 
 class RestUtilsSpec extends Specification {
 
-    static final String TEST_URI = "/test/$URL_PARAM_VAL"
-    static final String TEST_PATH = "/test/{$URL_PARAM_KEY}"
+    static final String TEST_URI = "/test/foo"
     static final String HEADER_KEY = "Header"
     static final String HEADER_VAL = "headervalue"
     static final String QUERY_KEY = "query"
     static final String QUERY_VAL = "querydata"
-    static final String URL_PARAM_KEY = "foo"
-    static final String URL_PARAM_VAL = "bar"
     static final Map BODY = [key: "value"]
 
     @Unroll("test isInvalid with status #httpStatus and expected value #expected")
@@ -211,13 +208,9 @@ class RestUtilsSpec extends Specification {
         headers[HEADER_KEY] = HEADER_VAL
         def queryParams = [:]
         queryParams[QUERY_KEY] = QUERY_VAL
-        def urlParams = [:]
-        urlParams[URL_PARAM_KEY] = URL_PARAM_VAL
 
         MessageCommand command = new MessageCommand()
-        command.baseUrl = baseUrl
-        command.path = TEST_PATH
-        command.urlParams = urlParams
+        command.url = "$baseUrl$TEST_URI"
         command.headers = headers
         command.queryParams = queryParams
         command.body = BODY

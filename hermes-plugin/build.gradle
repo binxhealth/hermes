@@ -10,8 +10,8 @@ buildscript {
     }
 }
 
-version "0.1"
-group "com.atlasgenetics.hermes"
+version "1.0"
+group "com.atlasgenetics"
 
 apply plugin:"eclipse"
 apply plugin:"idea"

@@ -27,14 +27,14 @@ class MessageSenderService {
             command = new MessageCommand(message.messageData)
         }
         if (!message.invalid) {
-            int times = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes') as Integer ?: 5
-            int statusCode = RestUtils.retryMessage(command, times, message.statusCode)
-            message.statusCode = statusCode
-            if (message.succeeded) {
+            int times = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
+            Long retryWaitTime = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryInterval', Long, 10000L)
+            int statusCode = RestUtils.retryMessage(command, times, retryWaitTime, message.statusCode)
+            if (RestUtils.isSuccessCode(statusCode)) {
                 failedMessageManagerService.purgeMessage(message)
                 return true
             } else {
-                failedMessageManagerService.unlockMessage(message)
+                failedMessageManagerService.completeFailedRetryProcess(message, statusCode)
                 return false
             }
         } else {

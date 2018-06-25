@@ -32,8 +32,7 @@ class MessageSenderServiceIntegrationSpec extends Specification {
 
         and: "the appropriate message data"
         MessageCommand cmd = new MessageCommand()
-        cmd.baseUrl = mock.getHttpUrl()
-        cmd.path = TEST_URI
+        cmd.url = "${mock.getHttpUrl()}$TEST_URI"
         cmd.httpMethod = HttpMethod.GET
 
         when: "we try to send the message"
@@ -64,8 +63,7 @@ class MessageSenderServiceIntegrationSpec extends Specification {
 
         and: "the appropriate message data"
         MessageCommand cmd = new MessageCommand()
-        cmd.baseUrl = mock.getHttpUrl()
-        cmd.path = TEST_URI
+        cmd.url = "${mock.getHttpUrl()}$TEST_URI"
         cmd.httpMethod = HttpMethod.GET
 
         when: "we try to send the message"
@@ -94,9 +92,11 @@ class MessageSenderServiceIntegrationSpec extends Specification {
 
         and: "the appropriate message data"
         MessageCommand cmd = new MessageCommand()
-        cmd.baseUrl = mock.getHttpUrl()
-        cmd.path = uri
+        cmd.url = "${mock.getHttpUrl()}$uri"
         cmd.httpMethod = HttpMethod.GET
+
+        and: "override the retryInterval default so the test runs faster"
+        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
 
         when: "we try to send the message"
         boolean sent  = FailedMessage.withSession { session ->
@@ -114,8 +114,7 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         and: "a FailedMessage was created in the DB"
         def results = FailedMessage.withSession {
             FailedMessage.withCriteria {
-                pgJsonHasFieldValue 'messageData', 'baseUrl', cmd.baseUrl
-                pgJsonHasFieldValue 'messageData', 'path', cmd.path
+                pgJsonHasFieldValue 'messageData', 'url', cmd.url
                 pgJsonHasFieldValue 'messageData', 'httpMethod', cmd.httpMethod
                 eq 'statusCode', HttpStatus.INTERNAL_SERVER_ERROR.value()
                 eq 'locked', false
@@ -139,9 +138,11 @@ class MessageSenderServiceIntegrationSpec extends Specification {
 
         and: "the appropriate message data"
         MessageCommand cmd = new MessageCommand()
-        cmd.baseUrl = mock.getHttpUrl()
-        cmd.path = TEST_URI
+        cmd.url = "${mock.getHttpUrl()}$TEST_URI"
         cmd.httpMethod = HttpMethod.GET
+
+        and: "override the retryInterval default so the test runs faster"
+        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
 
         and: "the retryTimes configuration property set to override the default value"
         grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 10

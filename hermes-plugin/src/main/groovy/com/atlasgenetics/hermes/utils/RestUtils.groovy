@@ -29,9 +29,10 @@ class RestUtils {
      * @param times The desired maximum number of retry attempts
      * @return the HTTP status code of the last response received
      */
-    static int retryMessage(MessageCommand command, int times, int statusCode) {
+    static int retryMessage(MessageCommand command, int times, Long waitTime, int statusCode) {
         while (isFailureCode(statusCode) && !isInvalidMessageCode(statusCode) && times > 0) {
             statusCode = makeRequest(command)
+            sleep(waitTime)
             times--
         }
         return statusCode
@@ -68,7 +69,7 @@ class RestUtils {
 
     private static int doPost(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.post(messageData.builtUrl) {
+        RestResponse resp = rest.post(messageData.fullUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)
@@ -82,7 +83,7 @@ class RestUtils {
 
     private static int doGet(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.get(messageData.builtUrl) {
+        RestResponse resp = rest.get(messageData.fullUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)
@@ -93,7 +94,7 @@ class RestUtils {
 
     private static int doPut(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.put(messageData.builtUrl) {
+        RestResponse resp = rest.put(messageData.fullUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)
@@ -108,7 +109,7 @@ class RestUtils {
 
     private static int doDelete(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.delete(messageData.builtUrl) {
+        RestResponse resp = rest.delete(messageData.fullUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)
@@ -119,7 +120,7 @@ class RestUtils {
 
     private static int doHead(MessageCommand messageData) {
         RestBuilder rest = new RestBuilder()
-        RestResponse resp = rest.head(messageData.builtUrl) {
+        RestResponse resp = rest.head(messageData.fullUrl) {
             Map<String, String> headerData = messageData.headers as Map<String, String>
             headerData?.each { k, v ->
                 header(k, v)

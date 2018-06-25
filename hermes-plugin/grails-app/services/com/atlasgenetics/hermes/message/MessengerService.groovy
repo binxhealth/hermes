@@ -31,26 +31,20 @@ class MessengerService {
      * functionality that Hermes supplies.  Please see {@link MessageCommand} for input validation rules.
      *
      * @param httpMethod
-     * @param baseUrl This can include the path, or the path can be submitted as a separate parameter.  If the URL
-     *        contains URL parameters, they should be wrapped in curly braces, e.g. http://test.com/foo/{bar}, where
-     *        bar is the URL parameter
-     * @param path (optional) If the URL contains URL parameters, they should be wrapped in curly braces, e.g.
-     *        http://test.com/foo/{bar}, where bar is the URL parameter
+     * @param url This can include the queryParams, or they can be included as a separate Map.  NOTE: If the queryParams
+     *        are passed in as a Map, the url param will be put through a URL encoder as part of the queryParam
+     *        encoding process
      * @param headers
-     * @param urlParams
      * @param queryParams
      * @param body
      * @return true if the message was sent successfully; false if it failed
      */
-    boolean makeRequest(HttpMethod httpMethod, String baseUrl, String path = null, Map<String, Object> headers = null,
-                        Map<String, Object> urlParams = null, Map<String, Object> queryParams = null,
-                        Map<String, Object> body = null) {
+    boolean makeRequest(HttpMethod httpMethod, String url, Map<String, Object> headers = null,
+                        Map<String, Object> queryParams = null, Map<String, Object> body = null) {
         MessageCommand messageCommand = new MessageCommand()
         messageCommand.httpMethod = httpMethod
-        messageCommand.baseUrl = baseUrl
-        messageCommand.path = path
+        messageCommand.url = url
         messageCommand.headers = headers
-        messageCommand.urlParams = urlParams
         messageCommand.queryParams = queryParams
         messageCommand.body = body
         return makeRequest(messageCommand)

@@ -23,11 +23,16 @@ class FailedMessageManagerService {
     Set<FailedMessage> gatherAndLockFailedMessagesForRetry() {
         Set<FailedMessage> messages = FailedMessage.findAllByLockedAndStatusCodeGreaterThan(false, 499)
         messages*.locked = true
+        messages*.save(failOnError: true)
         return messages
     }
 
     void purgeMessage(FailedMessage message) {
         message.delete(failOnError: true)
+    }
+
+    void purgeMessages(Set<FailedMessage> messages) {
+        messages*.delete(failOnError: true)
     }
 
     void completeFailedRetryProcess(FailedMessage message, int finalStatusCode) {

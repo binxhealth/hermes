@@ -45,7 +45,7 @@ volumes: [
       container('groovy') {
         sh 'groovy -v'
         sh 'cd hermes-plugin'
-        sh './grailsw install'
+        sh '/bin/bash grailsw install'
         sh 'cd ..'
       } 
     }

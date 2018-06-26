@@ -32,6 +32,10 @@ class FailedMessageManagerService {
         message.delete(failOnError: true)
     }
 
+    void purgeMessages(Set<FailedMessage> messages) {
+        messages*.delete(failOnError: true)
+    }
+
     void completeFailedRetryProcess(FailedMessage message, int finalStatusCode) {
         message.statusCode = finalStatusCode
         message.save(failOnError: true)

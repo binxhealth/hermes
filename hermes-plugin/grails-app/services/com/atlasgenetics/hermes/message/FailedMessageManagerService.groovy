@@ -19,12 +19,15 @@ class FailedMessageManagerService {
     }
 
     @Synchronized
-    Set<FailedMessage> gatherAndLockFailedMessagesForRetry(Integer maxMessagesToRetry = null) {
+    Set<FailedMessage> gatherAndLockFailedMessagesForRetry(Integer maxMessagesToRetry = null,
+                                                           boolean usePessimisticLock = false) {
         Set<FailedMessage> messages = FailedMessage.createCriteria().list {
             ge('statusCode', 500)
             if (maxMessagesToRetry) maxResults(maxMessagesToRetry)
         } as Set<FailedMessage>
-        messages*.lock()
+        if (usePessimisticLock) {
+            messages*.lock()
+        }
         return messages
     }
 

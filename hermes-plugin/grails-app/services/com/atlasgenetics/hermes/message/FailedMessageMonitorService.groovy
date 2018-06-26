@@ -9,7 +9,7 @@ import groovy.time.TimeCategory
  * need not implement it themselves.
  * @author Maura Warner
  */
-@Transactional
+@Transactional(readOnly = true)
 class FailedMessageMonitorService {
 
     /**
@@ -21,7 +21,6 @@ class FailedMessageMonitorService {
      * @param updatedBefore Date
      * @param updatedAfter Date
      * @param urlRegEx String, must be formatted as a PostgreSQL regular expression
-     * @param locked Boolean
      * @param statusCodes List<Integer>
      * @param httpMethod String, must be in all caps e.g. 'GET', 'POST'
      * @param orderByProp String, name of the property to order the result set by.  Must be a valid property of FailedMessage; cannot be a property of messageData
@@ -36,7 +35,6 @@ class FailedMessageMonitorService {
             if (args?.updatedAfter) gt('lastUpdated', args.updatedAfter)
             if (args?.urlRegEx) pgJson('messageData', '->>', 'url', 'like', args.urlRegEx)
             if (args?.statusCodes) 'in'('statusCode', args.statusCodes)
-            if (args?.locked != null) eq('locked', args.locked)
             if (args?.httpMethod) pgJson('messageData', '->>', 'httpMethod', '=', args.httpMethod)
             if (args?.orderByProp) order(args.orderByProp, args.ascDesc ?: 'desc')
         } as List<FailedMessage>

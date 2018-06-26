@@ -63,7 +63,6 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
         failedMessage.statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()
         failedMessage.dateCreated
         failedMessage.lastUpdated
-        failedMessage.locked
 
         and: "the message data is still available"
         failedMessage.messageData

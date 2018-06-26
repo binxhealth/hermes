@@ -14,35 +14,23 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
 
     void "test gather failed messages for retry"() {
         given: "several FailedMessages"
-        FailedMessage validUnlocked = new FailedMessage()
-        validUnlocked.messageData = [foo: 'bar']
-        validUnlocked.statusCode = 500
-        validUnlocked.save()
+        FailedMessage valid = new FailedMessage()
+        valid.messageData = [foo: 'bar']
+        valid.statusCode = 500
+        valid.save()
 
-        FailedMessage invalidUnlocked = new FailedMessage()
-        invalidUnlocked.messageData = [foo: 'bar']
-        invalidUnlocked.statusCode = 400
-        invalidUnlocked.save()
-
-        FailedMessage invalidLocked = new FailedMessage()
-        invalidLocked.messageData = [foo: 'bar']
-        invalidLocked.statusCode = 400
-        invalidLocked.save()
-
-        FailedMessage validLocked = new FailedMessage()
-        validLocked.messageData = [foo: 'bar']
-        validLocked.statusCode = 500
-        validLocked.save(flush: true)
+        FailedMessage invalid = new FailedMessage()
+        invalid.messageData = [foo: 'bar']
+        invalid.statusCode = 400
+        invalid.save(flush: true)
 
         when: "we gather failed messages for retry"
-        Set<FailedMessage> messages = failedMessageManagerService.gatherAndLockFailedMessagesForRetry()
+        Set<FailedMessage> messages = failedMessageManagerService.gatherFailedMessagesForRetry()
 
         then: "only eligible messages are returned"
         messages
-        messages.contains(validUnlocked)
-        !messages.contains(invalidUnlocked)
-        !messages.contains(validLocked)
-        !messages.contains(invalidLocked)
+        messages.contains(valid)
+        !messages.contains(invalid)
     }
 
     void "test create failed message"() {

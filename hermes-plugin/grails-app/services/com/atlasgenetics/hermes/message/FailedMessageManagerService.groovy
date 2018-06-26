@@ -31,7 +31,7 @@ class FailedMessageManagerService {
     }
 
     /**
-     * Locates all FailedMessages currently eligible for retry.  Messages that failed with 3xx or 4xx error codes
+     * Finds all FailedMessages currently eligible for retry.  Messages that failed with 3xx or 4xx error codes
      * are ineligible for retry as they are invalid; only messages that failed with 5xx error codes should be
      * retried.
      * @return FailedMessages to retry

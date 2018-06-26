@@ -49,8 +49,12 @@ volumes: [
     }
     stage('Integration Tests') {
       container('groovy') {
-        sh 'cd hermes-integration-test-app && ./gradlew test'
+        sh 'cd hermes-integration-test-app && ./grailsw test-app'
       } 
+    post {
+        always {
+            junit 'build/reports/**/*.xml'
+        }
     }
   }
 }

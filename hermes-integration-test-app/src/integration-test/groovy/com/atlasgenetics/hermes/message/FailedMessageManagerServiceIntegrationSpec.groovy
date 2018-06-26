@@ -16,25 +16,21 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
         given: "several FailedMessages"
         FailedMessage validUnlocked = new FailedMessage()
         validUnlocked.messageData = [foo: 'bar']
-        validUnlocked.locked = false
         validUnlocked.statusCode = 500
         validUnlocked.save()
 
         FailedMessage invalidUnlocked = new FailedMessage()
         invalidUnlocked.messageData = [foo: 'bar']
-        invalidUnlocked.locked = false
         invalidUnlocked.statusCode = 400
         invalidUnlocked.save()
 
         FailedMessage invalidLocked = new FailedMessage()
         invalidLocked.messageData = [foo: 'bar']
-        invalidLocked.locked = true
         invalidLocked.statusCode = 400
         invalidLocked.save()
 
         FailedMessage validLocked = new FailedMessage()
         validLocked.messageData = [foo: 'bar']
-        validLocked.locked = true
         validLocked.statusCode = 500
         validLocked.save(flush: true)
 

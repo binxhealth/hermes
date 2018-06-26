@@ -14,15 +14,17 @@ class FailedMessageManagerService {
     FailedMessage createFailedMessage(MessageCommand messageData, int statusCode) {
         FailedMessage message = new FailedMessage()
         message.messageData = messageData.toMap()
-        message.locked = true
         message.statusCode = statusCode
         message.save(failOnError: true)
     }
 
     @Synchronized
-    Set<FailedMessage> gatherAndLockFailedMessagesForRetry() {
-        Set<FailedMessage> messages = FailedMessage.findAllByLockedAndStatusCodeGreaterThan(false, 499)
-        messages*.locked = true
+    Set<FailedMessage> gatherAndLockFailedMessagesForRetry(Integer maxMessagesToRetry = null) {
+        Set<FailedMessage> messages = FailedMessage.createCriteria().list {
+            ge('statusCode', 500)
+            if (maxMessagesToRetry) maxResults(maxMessagesToRetry)
+        } as Set<FailedMessage>
+        messages*.lock()
         return messages
     }
 
@@ -32,7 +34,6 @@ class FailedMessageManagerService {
 
     void completeFailedRetryProcess(FailedMessage message, int finalStatusCode) {
         message.statusCode = finalStatusCode
-        message.locked = false
         message.save(failOnError: true)
     }
 

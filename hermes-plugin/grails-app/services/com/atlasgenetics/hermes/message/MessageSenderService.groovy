@@ -2,12 +2,14 @@ package com.atlasgenetics.hermes.message
 
 import com.atlasgenetics.hermes.utils.RestUtils
 import grails.core.GrailsApplication
+import grails.gorm.transactions.Transactional
 
 /**
  * This service orchestrates the sending of HTTP requests throughout the message send and retry process.
  *
  * @author Maura Warner
  */
+@Transactional
 class MessageSenderService {
 
     FailedMessageManagerService failedMessageManagerService

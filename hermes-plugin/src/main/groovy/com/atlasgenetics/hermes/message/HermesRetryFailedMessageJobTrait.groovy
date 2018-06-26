@@ -1,5 +1,6 @@
 package com.atlasgenetics.hermes.message
 
+import grails.gorm.transactions.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 
 /**
@@ -16,8 +17,9 @@ trait HermesRetryFailedMessageJobTrait {
     @Autowired
     MessageSenderService messageSenderService
 
-    void retryFailedMessages() {
-        Set<FailedMessage> messagesToRetry = failedMessageManagerService.gatherAndLockFailedMessagesForRetry()
+    @Transactional
+    void retryFailedMessages(Integer maxMessagesToRetry = null) {
+        Set<FailedMessage> messagesToRetry = failedMessageManagerService.gatherAndLockFailedMessagesForRetry(maxMessagesToRetry)
         messagesToRetry.each {
             messageSenderService.retryFailedMessage(it)
         }

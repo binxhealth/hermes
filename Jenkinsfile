@@ -41,10 +41,17 @@ volumes: [
 
   node(label) {
     stage('Checkout Source') { checkout scm }
-    stage('Test Application') {
+    stage('Build Plugin') {
+      container('groovy') {
+        sh 'groovy -v'
+        sh 'cd hermes-plugin'
+        sh './grailsw install'
+        sh 'cd ..'
+      } 
+    }
+    stage('Integration Tests') {
       container('groovy') {
         sh 'cd hermes-integration-test-app'
-        sh 'groovy -v'
         sh './gradlew test'
       } 
     }

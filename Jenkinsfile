@@ -55,7 +55,7 @@ volumes: [
         }
     } 
     finally {
-        junit 'build/reports/**/*.xml'
+        junit 'hermes-integration-test-app/build/reports/**/*.xml'
     }
   }
 }

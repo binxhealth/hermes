@@ -44,17 +44,12 @@ volumes: [
     stage('Build Plugin') {
       container('groovy') {
         sh 'groovy -v'
-        sh 'cd hermes-plugin'
-        sh 'ls -lhtra'
-        sh 'chmod +x grailsw'
-        sh './grailsw install'
-        sh 'cd ..'
+        sh 'cd hermes-plugin && ./grailsw install'
       } 
     }
     stage('Integration Tests') {
       container('groovy') {
-        sh 'cd hermes-integration-test-app'
-        sh './gradlew test'
+        sh 'cd hermes-integration-test-app && ./gradlew test'
       } 
     }
   }

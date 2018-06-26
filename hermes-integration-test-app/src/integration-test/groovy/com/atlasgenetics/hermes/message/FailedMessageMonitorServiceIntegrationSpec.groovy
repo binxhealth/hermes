@@ -111,13 +111,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
         
         then: "only messages with the desired status codes are returned"
         results
-        results.find {it.id == invalidUnlockedGet.id}
-        results.find {it.id == invalidLockedHead.id}
-        results.find {it.id == invalidUnlockedDeleteOld.id}
-        !results.find {it.id == validUnlockedPost.id}
-        !results.find {it.id == validUnlockedPutOld.id}
-        !results.find {it.id == redirectLockedGet.id}
-        !results.find {it.id == redirectUnlockedPut.id}
+        results.find { it.id == invalidUnlockedGet.id }
+        results.find { it.id == invalidLockedHead.id }
+        results.find { it.id == invalidUnlockedDeleteOld.id }
+        !results.find { it.id == validUnlockedPost.id }
+        !results.find { it.id == validUnlockedPutOld.id }
+        !results.find { it.id == redirectLockedGet.id }
+        !results.find { it.id == redirectUnlockedPut.id }
     }
 
     void "test getRedirectedMessages"() {
@@ -126,13 +126,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only messages with the desired status codes are returned"
         results
-        !results.find {it.id == invalidUnlockedGet.id}
-        !results.find {it.id == invalidLockedHead.id}
-        !results.find {it.id == invalidUnlockedDeleteOld.id}
-        !results.find {it.id == validUnlockedPost.id}
-        !results.find {it.id == validUnlockedPutOld.id}
-        results.find {it.id == redirectLockedGet.id}
-        results.find {it.id == redirectUnlockedPut.id}
+        !results.find { it.id == invalidUnlockedGet.id }
+        !results.find { it.id == invalidLockedHead.id }
+        !results.find { it.id == invalidUnlockedDeleteOld.id }
+        !results.find { it.id == validUnlockedPost.id }
+        !results.find { it.id == validUnlockedPutOld.id }
+        results.find { it.id == redirectLockedGet.id }
+        results.find { it.id == redirectUnlockedPut.id }
     }
 
     void "test getInvalidMessages"() {
@@ -141,13 +141,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only messages with the desired status codes are returned"
         results
-        results.find {it.id == invalidUnlockedGet.id}
-        results.find {it.id == invalidLockedHead.id}
-        results.find {it.id == invalidUnlockedDeleteOld.id}
-        !results.find {it.id == validUnlockedPost.id}
-        !results.find {it.id == validUnlockedPutOld.id}
-        results.find {it.id == redirectLockedGet.id}
-        results.find {it.id == redirectUnlockedPut.id}
+        results.find { it.id == invalidUnlockedGet.id }
+        results.find { it.id == invalidLockedHead.id }
+        results.find { it.id == invalidUnlockedDeleteOld.id }
+        !results.find { it.id == validUnlockedPost.id }
+        !results.find { it.id == validUnlockedPutOld.id }
+        results.find { it.id == redirectLockedGet.id }
+        results.find { it.id == redirectUnlockedPut.id }
     }
 
     void "test getValidMessages"() {
@@ -156,13 +156,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only messages with the desired status codes are returned"
         results
-        !results.find {it.id == invalidUnlockedGet.id}
-        !results.find {it.id == invalidLockedHead.id}
-        !results.find {it.id == invalidUnlockedDeleteOld.id}
-        results.find {it.id == validUnlockedPost.id}
-        results.find {it.id == validUnlockedPutOld.id}
-        !results.find {it.id == redirectLockedGet.id}
-        !results.find {it.id == redirectUnlockedPut.id}
+        !results.find { it.id == invalidUnlockedGet.id }
+        !results.find { it.id == invalidLockedHead.id }
+        !results.find { it.id == invalidUnlockedDeleteOld.id }
+        results.find { it.id == validUnlockedPost.id }
+        results.find { it.id == validUnlockedPutOld.id }
+        !results.find { it.id == redirectLockedGet.id }
+        !results.find { it.id == redirectUnlockedPut.id }
     }
 
     void "test getMessagesMoreThanOneDayOld"() {
@@ -171,19 +171,19 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only old messages are returned"
         results
-        !results.find {it.id == invalidUnlockedGet.id}
-        !results.find {it.id == invalidLockedHead.id}
-        results.find {it.id == invalidUnlockedDeleteOld.id}
-        !results.find {it.id == validUnlockedPost.id}
-        results.find {it.id == validUnlockedPutOld.id}
-        !results.find {it.id == redirectLockedGet.id}
-        !results.find {it.id == redirectUnlockedPut.id}
+        !results.find { it.id == invalidUnlockedGet.id }
+        !results.find { it.id == invalidLockedHead.id }
+        results.find { it.id == invalidUnlockedDeleteOld.id }
+        !results.find { it.id == validUnlockedPost.id }
+        results.find { it.id == validUnlockedPutOld.id }
+        !results.find { it.id == redirectLockedGet.id }
+        !results.find { it.id == redirectUnlockedPut.id }
     }
 
     void "test createdAfter, urlRegex, statusCodes"() {
         given: "the args for the criteria query"
         Map args = [
-                createdAfter: use(TimeCategory){new Date() - 1.day},
+                createdAfter: use(TimeCategory){ new Date() - 1.day },
                 urlRegEx: "$TEST_DOT_COM%",
                 statusCodes: [400, 404, 500]
         ]
@@ -193,13 +193,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only the expected messages are returned"
         results
-        results.find {it.id == invalidUnlockedGet.id}
-        results.find {it.id == invalidLockedHead.id}
-        !results.find {it.id == invalidUnlockedDeleteOld.id}
-        !results.find {it.id == validUnlockedPost.id}
-        !results.find {it.id == validUnlockedPutOld.id}
-        !results.find {it.id == redirectLockedGet.id}
-        !results.find {it.id == redirectUnlockedPut.id}
+        results.find { it.id == invalidUnlockedGet.id }
+        results.find { it.id == invalidLockedHead.id }
+        !results.find { it.id == invalidUnlockedDeleteOld.id }
+        !results.find { it.id == validUnlockedPost.id }
+        !results.find { it.id == validUnlockedPutOld.id }
+        !results.find { it.id == redirectLockedGet.id }
+        !results.find { it.id == redirectUnlockedPut.id }
     }
 
     void "test httpMethod, orderBy, locked"() {
@@ -215,15 +215,15 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only the expected messages are returned"
         results
-        !results.find {it.id == invalidUnlockedGet.id}
-        !results.find {it.id == invalidLockedHead.id}
-        !results.find {it.id == invalidUnlockedDeleteOld.id}
-        !results.find {it.id == validUnlockedPost.id}
-        results.find {it.id == validUnlockedPutOld.id}
-        !results.find {it.id == redirectLockedGet.id}
-        results.find {it.id == redirectUnlockedPut.id}
+        !results.find { it.id == invalidUnlockedGet.id }
+        !results.find { it.id == invalidLockedHead.id }
+        !results.find { it.id == invalidUnlockedDeleteOld.id }
+        !results.find { it.id == validUnlockedPost.id }
+        results.find { it.id == validUnlockedPutOld.id }
+        !results.find { it.id == redirectLockedGet.id }
+        results.find { it.id == redirectUnlockedPut.id }
 
         and: "the result set is sorted correctly"
-        results == results.sort {a, b -> a.statusCode <=> b.statusCode}
+        results == results.sort { it.statusCode }
     }
 }

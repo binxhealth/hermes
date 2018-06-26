@@ -90,9 +90,7 @@ class FailedMessageMonitorService {
      */
     List<FailedMessage> getMessagesWithStatusCodeInRange(int lowerBound, int upperBound, Map args = [:]) {
         if (args == null) args = [:]
-        List<Integer> range = []
-        range.addAll(lowerBound..upperBound)
-        args.statusCodes = range
+        args.statusCodes = (lowerBound..upperBound).toList()
         return listFailedMessages(args)
     }
 

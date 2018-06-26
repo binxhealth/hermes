@@ -50,7 +50,7 @@ volumes: [
     try {
         stage('Integration Tests') {
           container('groovy') {
-            sh 'cd hermes-integration-test-app && ./grailsw test-app'
+            sh 'cd hermes-integration-test-app && ./gradlew test'
           } 
         }
     } 

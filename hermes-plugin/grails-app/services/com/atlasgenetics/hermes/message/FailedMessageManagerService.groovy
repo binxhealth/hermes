@@ -37,9 +37,12 @@ class FailedMessageManagerService {
      * @return FailedMessages to retry
      */
     @Transactional(readOnly = true)
-    Set<FailedMessage> gatherFailedMessagesForRetry() {
-        Set<FailedMessage> messages = FailedMessage.findAllByStatusCodeGreaterThanEquals(500)
-        return messages
+    Set<FailedMessage> gatherFailedMessagesForRetry(Integer maxResultCount = null) {
+        if (maxResultCount) {
+            return FailedMessage.findAllByStatusCodeGreaterThanEquals(500, [max: maxResultCount])
+        } else {
+            return FailedMessage.findAllByStatusCodeGreaterThanEquals(500)
+        }
     }
 
 }

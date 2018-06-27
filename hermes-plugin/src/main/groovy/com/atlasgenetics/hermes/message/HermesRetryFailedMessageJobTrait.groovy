@@ -1,5 +1,11 @@
 package com.atlasgenetics.hermes.message
 
+import grails.async.Promises
+import grails.async.PromiseList
+import groovy.transform.CompileStatic
+import groovyx.gpars.GParsExecutorsPool
+import groovyx.gpars.GParsPool
+import groovyx.gpars.extra166y.ParallelArray
 import org.springframework.beans.factory.annotation.Autowired
 
 /**
@@ -22,4 +28,18 @@ trait HermesRetryFailedMessageJobTrait {
             messageSenderService.retryFailedMessage(it)
         }
     }
+
+    void retryFailedMessagesInParallel() {
+        //if (!maxMessagesPerThread && !maxThreads) throw new IllegalArgumentException(
+        //        "maxMessagesPerThread and maxThreads cannot both be null")
+        Set<FailedMessage> messagesToRetry = failedMessageManagerService.gatherFailedMessagesForRetry()
+       /* List<List<FailedMessage>> collatedMessages = messagesToRetry.collate(maxMessagesPerThread ?:
+                Math.ceil(messagesToRetry.size() / maxThreads) as Integer)*/
+        GParsExecutorsPool.withPool {
+            messagesToRetry.eachParallel { FailedMessage msg ->
+                messageSenderService.retryFailedMessage(msg)
+            }
+        }
+    }
+
 }

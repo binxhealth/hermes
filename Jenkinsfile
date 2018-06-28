@@ -62,7 +62,7 @@ podTemplate(
     node(label) {
         stage('Checkout Source') { checkout scm }
         try {
-            stage('Build Plugin') {
+            stage('Plugin Tests') {
                 container('groovy') {
                     sh 'cd hermes-plugin && ./grailsw test-app --stacktrace'
                 } 
@@ -71,7 +71,7 @@ podTemplate(
             junit 'hermes-plugin/build/test-results/**/*.xml'
         }
         try {
-            stage('Integration Tests') {
+            stage('Integration Tests from Test App') {
                 container('groovy') {
                     sh 'cd hermes-integration-test-app && ./grailsw test-app --stacktrace'
                 } 

@@ -94,7 +94,7 @@ dataSource:
     jmxExport: true
     driverClassName: org.postgresql.Driver
     username: atlas
-    password: kittens
+    password: atlas
     url: jdbc:postgresql://localhost:5432/atlas
     dbCreate: update
     logSql: true

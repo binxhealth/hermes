@@ -64,7 +64,7 @@ podTemplate(
         try {
             stage('Build Plugin') {
                 container('groovy') {
-                    sh 'cd hermes-plugin && ./grailsw test-app'
+                    sh 'cd hermes-plugin && ./grailsw test-app --stacktrace'
                 } 
             }
         } finally {
@@ -73,7 +73,7 @@ podTemplate(
         try {
             stage('Integration Tests') {
                 container('groovy') {
-                    sh 'cd hermes-integration-test-app && ./grailsw test-app'
+                    sh 'cd hermes-integration-test-app && ./grailsw test-app --stacktrace'
                 } 
             }
         } finally {

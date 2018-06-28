@@ -15,89 +15,82 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
     static final String EXAMPLE_DOT_COM = 'http://www.example.com'
 
     // test.com
-    FailedMessage invalidUnlockedGet
-    FailedMessage invalidLockedHead
-    FailedMessage redirectLockedGet
-    FailedMessage invalidUnlockedDeleteOld
+    FailedMessage invalidGet
+    FailedMessage invalidHead
+    FailedMessage redirectGet
+    FailedMessage invalidDeleteOld
     // www.example.com
-    FailedMessage validUnlockedPost
-    FailedMessage redirectUnlockedPut
-    FailedMessage validUnlockedPutOld
+    FailedMessage validPost
+    FailedMessage redirectPut
+    FailedMessage validPutOld
 
 
     def setup() {
         FailedMessage.withTransaction {
             use(TimeCategory) {
-                invalidUnlockedGet = new FailedMessage(
+                invalidGet = new FailedMessage(
                         statusCode: 400,
-                        locked: false,
                         messageData: [
                                 url: "$TEST_DOT_COM/foo".toString(),
                                 httpMethod: 'GET'
                         ]).save()
-                invalidLockedHead = new FailedMessage(
+                invalidHead = new FailedMessage(
                         statusCode: 404,
-                        locked: true,
                         messageData: [
                                 url: "$TEST_DOT_COM/bar".toString(),
                                 httpMethod: 'HEAD'
                         ]).save()
-                validUnlockedPost = new FailedMessage(
+                validPost = new FailedMessage(
                         statusCode: 500,
-                        locked: false,
                         messageData: [
                                 url: "$EXAMPLE_DOT_COM/foo".toString(),
                                 httpMethod: 'POST'
                         ]).save()
-                redirectUnlockedPut = new FailedMessage(
+                redirectPut = new FailedMessage(
                         statusCode: 302,
-                        locked: false,
                         messageData: [
                                 url: "$EXAMPLE_DOT_COM/bar".toString(),
                                 httpMethod: 'PUT'
                         ]).save()
-                redirectLockedGet = new FailedMessage(
+                redirectGet = new FailedMessage(
                         statusCode: 302,
-                        locked: true,
                         messageData: [
                                 url: "$TEST_DOT_COM/foo".toString(),
                                 httpMethod: 'GET'
                         ]).save()
 
-                // Cannot use map constructor to spoof dateCreated and lastUpdated
-                invalidUnlockedDeleteOld = new FailedMessage(
+                // Cannot use map constructor to spoof dateCreated
+                invalidDeleteOld = new FailedMessage(
                         statusCode: 404,
-                        locked: false,
                         messageData: [
                                 url: "$TEST_DOT_COM/baz".toString(),
                                 httpMethod: 'DELETE'
                         ]).save()
-                invalidUnlockedDeleteOld.dateCreated = new Date() - 3.days
-                invalidUnlockedDeleteOld.save()
+                invalidDeleteOld.dateCreated = new Date() - 3.days
+                invalidDeleteOld.save()
 
-                validUnlockedPutOld = new FailedMessage(
+                validPutOld = new FailedMessage(
                         dateCreated: new Date() - 2.days,
                         statusCode: 500,
-                        locked: false,
                         messageData: [
                                 url: "$EXAMPLE_DOT_COM/baz".toString(),
                                 httpMethod: 'PUT'
                         ]).save()
-                validUnlockedPutOld.dateCreated = new Date() - 2.days
-                validUnlockedPutOld.save()
+                validPutOld.dateCreated = new Date() - 2.days
+                validPutOld.save()
             }
         }
     }
 
     def cleanup() {
         FailedMessage.withTransaction {
-            invalidUnlockedDeleteOld.delete()
-            invalidLockedHead.delete()
-            invalidUnlockedGet.delete()
-            validUnlockedPutOld.delete()
-            validUnlockedPost.delete()
-            redirectUnlockedPut.delete()
-            redirectLockedGet.delete()
+            invalidDeleteOld.delete()
+            invalidHead.delete()
+            invalidGet.delete()
+            validPutOld.delete()
+            validPost.delete()
+            redirectPut.delete()
+            redirectGet.delete()
         }
     }
     
@@ -111,13 +104,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
         
         then: "only messages with the desired status codes are returned"
         results
-        results.find { it.id == invalidUnlockedGet.id }
-        results.find { it.id == invalidLockedHead.id }
-        results.find { it.id == invalidUnlockedDeleteOld.id }
-        !results.find { it.id == validUnlockedPost.id }
-        !results.find { it.id == validUnlockedPutOld.id }
-        !results.find { it.id == redirectLockedGet.id }
-        !results.find { it.id == redirectUnlockedPut.id }
+        results.find { it.id == invalidGet.id }
+        results.find { it.id == invalidHead.id }
+        results.find { it.id == invalidDeleteOld.id }
+        !results.find { it.id == validPost.id }
+        !results.find { it.id == validPutOld.id }
+        !results.find { it.id == redirectGet.id }
+        !results.find { it.id == redirectPut.id }
     }
 
     void "test getRedirectedMessages"() {
@@ -126,13 +119,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only messages with the desired status codes are returned"
         results
-        !results.find { it.id == invalidUnlockedGet.id }
-        !results.find { it.id == invalidLockedHead.id }
-        !results.find { it.id == invalidUnlockedDeleteOld.id }
-        !results.find { it.id == validUnlockedPost.id }
-        !results.find { it.id == validUnlockedPutOld.id }
-        results.find { it.id == redirectLockedGet.id }
-        results.find { it.id == redirectUnlockedPut.id }
+        !results.find { it.id == invalidGet.id }
+        !results.find { it.id == invalidHead.id }
+        !results.find { it.id == invalidDeleteOld.id }
+        !results.find { it.id == validPost.id }
+        !results.find { it.id == validPutOld.id }
+        results.find { it.id == redirectGet.id }
+        results.find { it.id == redirectPut.id }
     }
 
     void "test getInvalidMessages"() {
@@ -141,13 +134,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only messages with the desired status codes are returned"
         results
-        results.find { it.id == invalidUnlockedGet.id }
-        results.find { it.id == invalidLockedHead.id }
-        results.find { it.id == invalidUnlockedDeleteOld.id }
-        !results.find { it.id == validUnlockedPost.id }
-        !results.find { it.id == validUnlockedPutOld.id }
-        results.find { it.id == redirectLockedGet.id }
-        results.find { it.id == redirectUnlockedPut.id }
+        results.find { it.id == invalidGet.id }
+        results.find { it.id == invalidHead.id }
+        results.find { it.id == invalidDeleteOld.id }
+        !results.find { it.id == validPost.id }
+        !results.find { it.id == validPutOld.id }
+        results.find { it.id == redirectGet.id }
+        results.find { it.id == redirectPut.id }
     }
 
     void "test getValidMessages"() {
@@ -156,13 +149,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only messages with the desired status codes are returned"
         results
-        !results.find { it.id == invalidUnlockedGet.id }
-        !results.find { it.id == invalidLockedHead.id }
-        !results.find { it.id == invalidUnlockedDeleteOld.id }
-        results.find { it.id == validUnlockedPost.id }
-        results.find { it.id == validUnlockedPutOld.id }
-        !results.find { it.id == redirectLockedGet.id }
-        !results.find { it.id == redirectUnlockedPut.id }
+        !results.find { it.id == invalidGet.id }
+        !results.find { it.id == invalidHead.id }
+        !results.find { it.id == invalidDeleteOld.id }
+        results.find { it.id == validPost.id }
+        results.find { it.id == validPutOld.id }
+        !results.find { it.id == redirectGet.id }
+        !results.find { it.id == redirectPut.id }
     }
 
     void "test getMessagesMoreThanOneDayOld"() {
@@ -171,13 +164,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only old messages are returned"
         results
-        !results.find { it.id == invalidUnlockedGet.id }
-        !results.find { it.id == invalidLockedHead.id }
-        results.find { it.id == invalidUnlockedDeleteOld.id }
-        !results.find { it.id == validUnlockedPost.id }
-        results.find { it.id == validUnlockedPutOld.id }
-        !results.find { it.id == redirectLockedGet.id }
-        !results.find { it.id == redirectUnlockedPut.id }
+        !results.find { it.id == invalidGet.id }
+        !results.find { it.id == invalidHead.id }
+        results.find { it.id == invalidDeleteOld.id }
+        !results.find { it.id == validPost.id }
+        results.find { it.id == validPutOld.id }
+        !results.find { it.id == redirectGet.id }
+        !results.find { it.id == redirectPut.id }
     }
 
     void "test createdAfter, urlRegex, statusCodes"() {
@@ -193,20 +186,19 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only the expected messages are returned"
         results
-        results.find { it.id == invalidUnlockedGet.id }
-        results.find { it.id == invalidLockedHead.id }
-        !results.find { it.id == invalidUnlockedDeleteOld.id }
-        !results.find { it.id == validUnlockedPost.id }
-        !results.find { it.id == validUnlockedPutOld.id }
-        !results.find { it.id == redirectLockedGet.id }
-        !results.find { it.id == redirectUnlockedPut.id }
+        results.find { it.id == invalidGet.id }
+        results.find { it.id == invalidHead.id }
+        !results.find { it.id == invalidDeleteOld.id }
+        !results.find { it.id == validPost.id }
+        !results.find { it.id == validPutOld.id }
+        !results.find { it.id == redirectGet.id }
+        !results.find { it.id == redirectPut.id }
     }
 
-    void "test httpMethod, orderBy, locked"() {
+    void "test httpMethod, orderBy"() {
         given: "the args for the criteria query"
         Map args = [
                 httpMethod: 'PUT',
-                locked: false,
                 orderByProp: 'statusCode'
         ]
 
@@ -215,13 +207,13 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
         then: "only the expected messages are returned"
         results
-        !results.find { it.id == invalidUnlockedGet.id }
-        !results.find { it.id == invalidLockedHead.id }
-        !results.find { it.id == invalidUnlockedDeleteOld.id }
-        !results.find { it.id == validUnlockedPost.id }
-        results.find { it.id == validUnlockedPutOld.id }
-        !results.find { it.id == redirectLockedGet.id }
-        results.find { it.id == redirectUnlockedPut.id }
+        !results.find { it.id == invalidGet.id }
+        !results.find { it.id == invalidHead.id }
+        !results.find { it.id == invalidDeleteOld.id }
+        !results.find { it.id == validPost.id }
+        results.find { it.id == validPutOld.id }
+        !results.find { it.id == redirectGet.id }
+        results.find { it.id == redirectPut.id }
 
         and: "the result set is sorted correctly"
         results == results.sort { it.statusCode }

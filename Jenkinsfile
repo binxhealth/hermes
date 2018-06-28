@@ -73,7 +73,7 @@ podTemplate(
         try {
             stage('Integration Tests') {
                 container('groovy') {
-                    sh 'cd hermes-integration-test-app && ./grails test-app'
+                    sh 'cd hermes-integration-test-app && ./grailsw test-app'
                 } 
             }
         } finally {

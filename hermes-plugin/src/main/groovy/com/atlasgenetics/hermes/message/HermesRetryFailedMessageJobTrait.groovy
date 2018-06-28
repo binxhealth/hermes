@@ -17,7 +17,7 @@ trait HermesRetryFailedMessageJobTrait {
     MessageSenderService messageSenderService
 
     void retryFailedMessages() {
-        Set<FailedMessage> messagesToRetry = failedMessageManagerService.gatherAndLockFailedMessagesForRetry()
+        Set<FailedMessage> messagesToRetry = failedMessageManagerService.gatherFailedMessagesForRetry()
         messagesToRetry.each {
             messageSenderService.retryFailedMessage(it)
         }

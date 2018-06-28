@@ -9,7 +9,6 @@ class FailedMessage {
     Date dateCreated = new Date()
     Date lastUpdated
     int statusCode
-    boolean locked
 
     static constraints = {
         messageData nullable: false

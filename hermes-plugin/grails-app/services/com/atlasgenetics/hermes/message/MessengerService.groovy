@@ -1,5 +1,6 @@
 package com.atlasgenetics.hermes.message
 
+import grails.gorm.transactions.Transactional
 import org.springframework.context.MessageSource
 import org.springframework.http.HttpMethod
 
@@ -21,6 +22,7 @@ import org.springframework.http.HttpMethod
  *
  * @author Maura Warner
  */
+@Transactional
 class MessengerService {
 
     MessageSenderService messageSenderService

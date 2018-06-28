@@ -97,6 +97,7 @@ dataSource:
     password: atlas
     url: jdbc:postgresql://localhost:5432/atlas
     dbCreate: update
+    logSql: true
 
 environments:
     production:

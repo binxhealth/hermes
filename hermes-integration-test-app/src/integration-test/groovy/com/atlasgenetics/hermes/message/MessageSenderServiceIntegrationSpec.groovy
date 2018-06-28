@@ -117,7 +117,6 @@ class MessageSenderServiceIntegrationSpec extends Specification {
                 pgJsonHasFieldValue 'messageData', 'url', cmd.url
                 pgJsonHasFieldValue 'messageData', 'httpMethod', cmd.httpMethod
                 eq 'statusCode', HttpStatus.INTERNAL_SERVER_ERROR.value()
-                eq 'locked', false
             }
         }
         results

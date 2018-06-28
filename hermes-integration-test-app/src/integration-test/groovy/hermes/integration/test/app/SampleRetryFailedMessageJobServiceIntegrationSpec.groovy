@@ -39,7 +39,6 @@ class SampleRetryFailedMessageJobServiceIntegrationSpec extends Specification {
         FailedMessage message = new FailedMessage()
         message.messageData = cmd.toMap()
         message.statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value()
-        message.locked = false
         message.save(flush: true)
 
         when: "we trigger the retry message job"

@@ -299,7 +299,6 @@ class MessengerServiceFunctionalSpec extends Specification {
         results.size() == 1
         def msg = results.first()
         msg
-        !msg.locked
         msg.statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()
     }
 

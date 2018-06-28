@@ -67,8 +67,7 @@ podTemplate(
                     sh 'cd hermes-plugin && ./grailsw test-app'
                 } 
             }
-        }
-        finally {
+        } finally {
             junit 'hermes-plugin/build/test-results/**/*.xml'
         }
         try {
@@ -77,8 +76,7 @@ podTemplate(
                     sh 'cd hermes-integration-test-app && ./grails test-app'
                 } 
             }
-        } 
-        finally {
+        } finally {
             junit 'hermes-integration-test-app/build/test-results/**/*.xml'
         }
         // If Pull Request

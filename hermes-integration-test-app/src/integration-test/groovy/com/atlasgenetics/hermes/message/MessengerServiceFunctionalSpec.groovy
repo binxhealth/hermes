@@ -273,7 +273,7 @@ class MessengerServiceFunctionalSpec extends Specification {
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
 
         and: "override the retryInterval default so the test runs faster"
-        //grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 5
+        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 5
         grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
 
         when: "we send the message"

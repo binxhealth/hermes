@@ -69,7 +69,7 @@ podTemplate(
             }
         }
         finally {
-            junit 'hermes-plugin/build/reports/**/*.xml'
+            junit 'hermes-plugin/build/test-results/**/*.xml'
         }
         try {
             stage('Integration Tests') {
@@ -79,7 +79,7 @@ podTemplate(
             }
         } 
         finally {
-            junit 'hermes-integration-test-app/build/reports/**/*.xml'
+            junit 'hermes-integration-test-app/build/test-results/**/*.xml'
         }
         // If Pull Request
         if (env.CHANGE_ID) {

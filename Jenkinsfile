@@ -24,7 +24,7 @@ podTemplate(
                 envVar(key: 'POSTGRES_PASSWORD', value: 'atlas')]),
         containerTemplate(
             name: 'util',
-            image: 'gcr.io/atlas-dev-2001/jkn-util:1.0',
+            image: "${registry}/${project}/jkn-util:1.1",
             ttyEnabled: true,
             privileged: true,
             alwaysPullImage: false,
@@ -36,7 +36,7 @@ podTemplate(
             command: 'cat',
         ),
         containerTemplate(name: 'groovy', 
-            image: 'gcr.io/atlas-dev-2001/jkn-root-groovy:2.4-jdk8',
+            image: "${registry}/${project}/jkn-root-groovy:2.4-jdk8",
             ttyEnabled: true,
             privileged: true,
             alwaysPullImage: false,

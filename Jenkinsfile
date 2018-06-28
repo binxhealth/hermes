@@ -16,14 +16,14 @@ podTemplate(
             args: '${computer.jnlpmac} ${computer.name}'
         ),
         containerTemplate(
-            name: 'postgres', 
-            image: 'postgres:10.4', 
+            name: 'postgres',
+            image: 'postgres:10.4',
             envVars: [
                 envVar(key: 'POSTGRES_DB', value: 'atlas'),
                 envVar(key: 'POSTGRES_USER', value: 'atlas'),
                 envVar(key: 'POSTGRES_PASSWORD', value: 'atlas')]),
         containerTemplate(
-            name: 'util', 
+            name: 'util',
             image: 'gcr.io/atlas-dev-2001/jkn-util:1.0',
             ttyEnabled: true,
             privileged: true,

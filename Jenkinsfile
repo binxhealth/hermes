@@ -1,10 +1,17 @@
+import java.text.SimpleDateFormat
+
 def application = "hermes"
 def project = "atlas-dev-2001"
 def registry = "us.gcr.io"
 def gcrSecret = "/root/gcr_credentials"
 def label = "jkn-${application}-${UUID.randomUUID().toString()}"
-def version = "${env.BUILD_NUMBER}" // Todo: Handle version number logic
-def tag = "${registry}/${project}/${application}:${version}"
+
+// Version and Tag
+def dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+def date = new Date()
+String shortId
+String version
+String tag
 
 podTemplate(
     label: label,
@@ -61,6 +68,14 @@ podTemplate(
 ) {
     node(label) {
         stage('Checkout Source') { checkout scm }
+        stage('Generate Version and Tag') {
+            container('util') {
+                shortId = sh (script: "git rev-parse --short HEAD", returnStdout: true)
+                version = "${dateFormat.format(date)}-${shortId}".trim()
+                tag = "${registry}/${project}/${application}:${version}".trim()
+                echo "Now building version ${version} tagged as ${tag}"
+            }
+        }
         try {
             stage('Plugin Tests') {
                 container('groovy') {

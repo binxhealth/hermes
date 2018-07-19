@@ -4,6 +4,8 @@ import com.atlasgenetics.hermes.utils.RestUtils
 import grails.core.GrailsApplication
 import grails.gorm.transactions.Transactional
 
+import javax.annotation.PostConstruct
+
 /**
  * This service orchestrates the sending of HTTP requests throughout the message send and retry process.
  *
@@ -14,6 +16,16 @@ class MessageSenderService {
 
     FailedMessageManagerService failedMessageManagerService
     GrailsApplication grailsApplication
+
+    private Long retryWaitTime
+    private Integer maxRetryTimes
+
+
+    @PostConstruct
+    void init() {
+        retryWaitTime = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryInterval', Long, 10000L)
+        maxRetryTimes =  grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
+    }
 
     boolean sendMessage(MessageCommand message) {
         int status = RestUtils.attemptInitialSend(message)
@@ -41,14 +53,6 @@ class MessageSenderService {
         } else {
             return false
         }
-    }
-
-    private Long getRetryWaitTime() {
-        grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryInterval', Long, 10000L)
-    }
-
-    private int getMaxRetryTimes() {
-        grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
     }
 
 }

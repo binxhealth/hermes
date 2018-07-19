@@ -19,6 +19,7 @@ class MessageSenderService {
         int status = RestUtils.attemptInitialSend(message)
         if (RestUtils.isFailureCode(status)) {
             FailedMessage failedMessage = failedMessageManagerService.createFailedMessage(message, status)
+            sleep(retryWaitTime)
             return retryFailedMessage(failedMessage, message)
         }
         return true
@@ -29,9 +30,7 @@ class MessageSenderService {
             command = new MessageCommand(message.messageData)
         }
         if (!message.invalid) {
-            int times = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
-            Long retryWaitTime = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryInterval', Long, 10000L)
-            int statusCode = RestUtils.retryMessage(command, times, retryWaitTime, message.statusCode)
+            int statusCode = RestUtils.retryMessage(command, maxRetryTimes, retryWaitTime, message.statusCode)
             if (RestUtils.isSuccessCode(statusCode)) {
                 failedMessageManagerService.purgeMessage(message)
                 return true
@@ -42,6 +41,14 @@ class MessageSenderService {
         } else {
             return false
         }
+    }
+
+    private Long getRetryWaitTime() {
+        grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryInterval', Long, 10000L)
+    }
+
+    private int getMaxRetryTimes() {
+        grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
     }
 
 }

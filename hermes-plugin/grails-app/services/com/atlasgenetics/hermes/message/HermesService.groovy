@@ -13,6 +13,10 @@ import org.springframework.http.HttpMethod
  * that some part of the message itself is invalid.  Hermes will persist such messages with the relevant status code,
  * but will not retry them at a later date.
  *
+ * Hermes will catch ConnectExceptions thrown by RestBuilder and treat the messages that triggered the exception the
+ * same as any message that fails with a 5xx status.  Messages will be saved to the database with a special status code
+ * (see {@link com.atlasgenetics.hermes.utils.RestUtils}), and will be eligible for retry at a later date.
+ *
  * Please note that Hermes DOES NOT support PATCH requests, INDEX requests, or multipart forms.
  *
  * Hermes DOES NOT save any response data beyond the status code.  Response bodies etc. will be ignored and discarded.
@@ -20,10 +24,13 @@ import org.springframework.http.HttpMethod
  * To configure the maximum number of send attempts Hermes should make when retrying a failed message, set application
  * property com.atlasgenetics.hermes.retryTimes
  *
+ * To configure the amount of time Hermes should wait between attempts when retrying a failed message, set application
+ * property com.atlasgenetics.hermes.retryWaitTime
+ *
  * @author Maura Warner
  */
 @Transactional
-class MessengerService {
+class HermesService {
 
     MessageSenderService messageSenderService
     MessageSource messageSource
@@ -34,8 +41,7 @@ class MessengerService {
      *
      * @param httpMethod
      * @param url This can include the queryParams, or they can be included as a separate Map.  NOTE: If the queryParams
-     *        are passed in as a Map, the url param will be put through a URL encoder as part of the queryParam
-     *        encoding process
+     *        are passed in as a Map, url will be put through a URL encoder as part of the queryParam encoding process
      * @param headers
      * @param queryParams
      * @param body

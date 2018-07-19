@@ -40,8 +40,8 @@ class FailedMessageManagerService {
     @Transactional(readOnly = true)
     Set<FailedMessage> gatherFailedMessagesForRetry() {
         Set<FailedMessage> messages = FailedMessage.createCriteria().listDistinct {
-            eq('statusCode', RestUtils.CONNECT_EXCEPTION_CODE)
             or {
+                eq('statusCode', RestUtils.CONNECT_EXCEPTION_CODE)
                 ge('statusCode', 500)
             }
         } as Set<FailedMessage>

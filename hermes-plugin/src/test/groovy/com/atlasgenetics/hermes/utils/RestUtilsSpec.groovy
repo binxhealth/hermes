@@ -18,57 +18,60 @@ class RestUtilsSpec extends Specification {
     static final String QUERY_VAL = "querydata"
     static final Map BODY = [key: "value"]
 
-    @Unroll("test isInvalid with status #httpStatus and expected value #expected")
+    @Unroll("test isInvalid with status #statusCode and expected value #expected")
     void "test isInvalid"() {
         when: "we check a code for validity"
-        boolean out = RestUtils.isInvalidMessageCode(httpStatus.value())
+        boolean out = RestUtils.isInvalidMessageCode(statusCode)
 
         then: "the result is as expected"
         out == expected
 
         where:
-        httpStatus                          || expected
-        HttpStatus.OK                       || false
-        HttpStatus.BAD_REQUEST              || true
-        HttpStatus.INTERNAL_SERVER_ERROR    || false
-        HttpStatus.NOT_FOUND                || true
-        HttpStatus.PERMANENT_REDIRECT       || true
+        statusCode                              || expected
+        HttpStatus.OK.value()                   || false
+        HttpStatus.BAD_REQUEST.value()          || true
+        HttpStatus.INTERNAL_SERVER_ERROR.value()|| false
+        HttpStatus.NOT_FOUND.value()            || true
+        HttpStatus.PERMANENT_REDIRECT.value()   || true
+        RestUtils.CONNECT_EXCEPTION_CODE        || false
     }
 
-    @Unroll("test isFailed with status #httpStatus and expected value #expected")
+    @Unroll("test isFailed with status #statusCode and expected value #expected")
     void "test isFailed"() {
         when: "we check if a code is a failure"
-        boolean out = RestUtils.isFailureCode(httpStatus.value())
+        boolean out = RestUtils.isFailureCode(statusCode)
 
         then: "the result is as expected"
         out == expected
 
         where:
-        httpStatus                          || expected
-        HttpStatus.OK                       || false
-        HttpStatus.BAD_REQUEST              || true
-        HttpStatus.REQUEST_TIMEOUT          || true
-        HttpStatus.INTERNAL_SERVER_ERROR    || true
-        HttpStatus.NOT_FOUND                || true
-        HttpStatus.PERMANENT_REDIRECT       || true
+        statusCode                              || expected
+        HttpStatus.OK.value()                   || false
+        HttpStatus.BAD_REQUEST.value()          || true
+        HttpStatus.REQUEST_TIMEOUT.value()      || true
+        HttpStatus.INTERNAL_SERVER_ERROR.value()|| true
+        HttpStatus.NOT_FOUND.value()            || true
+        HttpStatus.PERMANENT_REDIRECT.value()   || true
+        RestUtils.CONNECT_EXCEPTION_CODE        || true
     }
 
-    @Unroll("test isSucceeded with status #httpStatus and expected value #expected")
+    @Unroll("test isSucceeded with status #statusCode and expected value #expected")
     void "test isSucceeded"() {
         when: "we check if a code is a success"
-        boolean out = RestUtils.isSuccessCode(httpStatus.value())
+        boolean out = RestUtils.isSuccessCode(statusCode)
 
         then: "the result is as expected"
         out == expected
 
         where:
-        httpStatus                          || expected
-        HttpStatus.OK                       || true
-        HttpStatus.BAD_REQUEST              || false
-        HttpStatus.REQUEST_TIMEOUT          || false
-        HttpStatus.INTERNAL_SERVER_ERROR    || false
-        HttpStatus.NOT_FOUND                || false
-        HttpStatus.PERMANENT_REDIRECT       || false
+        statusCode                              || expected
+        HttpStatus.OK.value()                   || true
+        HttpStatus.BAD_REQUEST.value()          || false
+        HttpStatus.REQUEST_TIMEOUT.value()      || false
+        HttpStatus.INTERNAL_SERVER_ERROR.value()|| false
+        HttpStatus.NOT_FOUND.value()            || false
+        HttpStatus.PERMANENT_REDIRECT.value()   || false
+        RestUtils.CONNECT_EXCEPTION_CODE        || false
     }
 
     void "test makeRequest - GET"() {

@@ -11,9 +11,9 @@ import spock.lang.Specification
 
 @Integration
 @Rollback
-class MessengerServiceFunctionalSpec extends Specification {
+class HermesServiceFunctionalSpec extends Specification {
 
-    def messengerService
+    def hermesService
     def grailsApplication
 
     static final String QUERY_PARAM_KEY = "q"
@@ -47,7 +47,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -93,7 +93,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.PUT, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.PUT, "$baseUrl$TEST_URI", headers,
                     queryParams, TEST_BODY)
             session.flush()
             return out
@@ -139,7 +139,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.POST, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.POST, "$baseUrl$TEST_URI", headers,
                     queryParams, TEST_BODY)
             session.flush()
             return out
@@ -184,7 +184,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.HEAD, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.HEAD, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -229,7 +229,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.DELETE, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.DELETE, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -278,7 +278,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out

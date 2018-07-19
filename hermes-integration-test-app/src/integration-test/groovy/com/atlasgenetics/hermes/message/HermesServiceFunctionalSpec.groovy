@@ -15,6 +15,7 @@ class HermesServiceFunctionalSpec extends Specification {
 
     def hermesService
     def grailsApplication
+    def messageSenderService
 
     static final String QUERY_PARAM_KEY = "q"
     static final String QUERY_PARAM_VAL = "query"
@@ -22,6 +23,12 @@ class HermesServiceFunctionalSpec extends Specification {
     static final Map TEST_BODY = [foo: "bar"]
     static final String TEST_HEADER_KEY = "Header"
     static final String TEST_HEADER_VAL = "Data"
+
+    def setup() {
+        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 5
+        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
+        messageSenderService.init()
+    }
 
     void "test successful message - verify GET e2e"() {
         given: "a mock server expecting the request we want to make"
@@ -271,10 +278,6 @@ class HermesServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-
-        and: "override the retryInterval default so the test runs faster"
-        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 5
-        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->

@@ -15,14 +15,18 @@ class MessageSenderServiceIntegrationSpec extends Specification {
     def messageSenderService
     def grailsApplication
 
+    Integer originalRetryTimesValue
+
     static final String TEST_URI = "/endpoint"
 
     def setup() {
+        originalRetryTimesValue = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
         messageSenderService.init()
     }
 
     def cleanup() {
-        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 5
+        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = originalRetryTimesValue
+        messageSenderService.init()
     }
 
     void "test send message - succeeds on first try"() {

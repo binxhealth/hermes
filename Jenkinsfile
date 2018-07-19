@@ -53,6 +53,11 @@ podTemplate(
             resourceLimitCpu: '2',
             resourceLimitMemory: '2048Mi',
             command: 'cat',
+            envVars: [
+                envVar(key: 'DB_USER', value: 'atlas'),
+                envVar(key: 'DB_PASS', value: 'atlas'),
+                envVar(key: 'DB_NAME', value: 'atlas')
+            ]
         )
     ],
     volumes: [

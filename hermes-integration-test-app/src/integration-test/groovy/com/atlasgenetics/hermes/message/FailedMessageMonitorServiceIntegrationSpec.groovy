@@ -19,6 +19,7 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
     FailedMessage invalidHead
     FailedMessage redirectGet
     FailedMessage invalidDeleteOld
+    FailedMessage validGetConnectException
     // www.example.com
     FailedMessage validPost
     FailedMessage redirectPut
@@ -39,6 +40,12 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
                         messageData: [
                                 url: "$TEST_DOT_COM/bar".toString(),
                                 httpMethod: 'HEAD'
+                        ]).save()
+                validGetConnectException = new FailedMessage(
+                        statusCode: 0,
+                        messageData: [
+                                url: "$TEST_DOT_COM/bar".toString(),
+                                httpMethod: 'GET'
                         ]).save()
                 validPost = new FailedMessage(
                         statusCode: 500,
@@ -111,6 +118,7 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
         !results.find { it.id == validPutOld.id }
         !results.find { it.id == redirectGet.id }
         !results.find { it.id == redirectPut.id }
+        !results.find { it.id == validGetConnectException.id }
     }
 
     void "test getRedirectedMessages"() {
@@ -126,6 +134,7 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
         !results.find { it.id == validPutOld.id }
         results.find { it.id == redirectGet.id }
         results.find { it.id == redirectPut.id }
+        !results.find { it.id == validGetConnectException.id }
     }
 
     void "test getInvalidMessages"() {
@@ -141,10 +150,11 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
         !results.find { it.id == validPutOld.id }
         results.find { it.id == redirectGet.id }
         results.find { it.id == redirectPut.id }
+        !results.find { it.id == validGetConnectException.id }
     }
 
     void "test getValidMessages"() {
-        when: "we query for messages that failed with a 5xx status code"
+        when: "we query for messages that failed with a 5xx status code or ConnectException"
         List<FailedMessage> results = failedMessageMonitorService.getValidMessages()
 
         then: "only messages with the desired status codes are returned"
@@ -156,6 +166,23 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
         results.find { it.id == validPutOld.id }
         !results.find { it.id == redirectGet.id }
         !results.find { it.id == redirectPut.id }
+        results.find { it.id == validGetConnectException.id }
+    }
+
+    void "test getConnectExceptionMessages"() {
+        when: "we query for messages that failed with a ConnectException"
+        List<FailedMessage> results = failedMessageMonitorService.getConnectExceptionMessages()
+
+        then: "only the appropriate messages are returned"
+        results
+        !results.find { it.id == invalidGet.id }
+        !results.find { it.id == invalidHead.id }
+        !results.find { it.id == invalidDeleteOld.id }
+        !results.find { it.id == validPost.id }
+        !results.find { it.id == validPutOld.id }
+        !results.find { it.id == redirectGet.id }
+        !results.find { it.id == redirectPut.id }
+        results.find { it.id == validGetConnectException.id }
     }
 
     void "test getMessagesMoreThanOneDayOld"() {
@@ -171,6 +198,7 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
         results.find { it.id == validPutOld.id }
         !results.find { it.id == redirectGet.id }
         !results.find { it.id == redirectPut.id }
+        !results.find { it.id == validGetConnectException.id }
     }
 
     void "test createdAfter, urlRegex, statusCodes"() {
@@ -193,6 +221,7 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
         !results.find { it.id == validPutOld.id }
         !results.find { it.id == redirectGet.id }
         !results.find { it.id == redirectPut.id }
+        !results.find { it.id == validGetConnectException.id }
     }
 
     void "test httpMethod, orderBy"() {
@@ -214,6 +243,7 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
         results.find { it.id == validPutOld.id }
         !results.find { it.id == redirectGet.id }
         results.find { it.id == redirectPut.id }
+        !results.find { it.id == validGetConnectException.id }
 
         and: "the result set is sorted correctly"
         results == results.sort { it.statusCode }

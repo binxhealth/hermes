@@ -98,6 +98,7 @@ class FailedMessageMonitorServiceIntegrationSpec extends Specification {
             validPost.delete()
             redirectPut.delete()
             redirectGet.delete()
+            validGetConnectException.delete()
         }
     }
     

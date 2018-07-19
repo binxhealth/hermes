@@ -18,8 +18,11 @@ class MessageSenderServiceIntegrationSpec extends Specification {
     static final String TEST_URI = "/endpoint"
 
     def setup() {
-        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
         messageSenderService.init()
+    }
+
+    def cleanup() {
+        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 5
     }
 
     void "test send message - succeeds on first try"() {

@@ -25,8 +25,6 @@ class HermesServiceFunctionalSpec extends Specification {
     static final String TEST_HEADER_VAL = "Data"
 
     def setup() {
-        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 5
-        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
         messageSenderService.init()
     }
 

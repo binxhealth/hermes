@@ -1,5 +1,7 @@
 # hermes
-A Grails plugin with guaranteed one-time delivery capabilities for HTTP requests
+A Grails plugin providing guaranteed one-time delivery capabilities for HTTP requests
+
+Documentation is available on GitHub.
 
 ## This Repo
 

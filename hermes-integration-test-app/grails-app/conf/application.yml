@@ -93,13 +93,18 @@ dataSource:
     pooled: true
     jmxExport: true
     driverClassName: org.postgresql.Driver
-    username: atlas
-    password: atlas
-    url: jdbc:postgresql://localhost:5432/atlas
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    url: jdbc:postgresql://localhost:5432/${DB_NAME}
     dbCreate: update
     logSql: true
 
 environments:
+    test:
+        com:
+            atlasgenetics:
+                hermes:
+                    retryInterval: 0
     production:
         dataSource:
             dbCreate: none

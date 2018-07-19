@@ -11,10 +11,11 @@ import spock.lang.Specification
 
 @Integration
 @Rollback
-class MessengerServiceFunctionalSpec extends Specification {
+class HermesServiceFunctionalSpec extends Specification {
 
-    def messengerService
+    def hermesService
     def grailsApplication
+    def messageSenderService
 
     static final String QUERY_PARAM_KEY = "q"
     static final String QUERY_PARAM_VAL = "query"
@@ -22,6 +23,10 @@ class MessengerServiceFunctionalSpec extends Specification {
     static final Map TEST_BODY = [foo: "bar"]
     static final String TEST_HEADER_KEY = "Header"
     static final String TEST_HEADER_VAL = "Data"
+
+    def setup() {
+        messageSenderService.init()
+    }
 
     void "test successful message - verify GET e2e"() {
         given: "a mock server expecting the request we want to make"
@@ -47,7 +52,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -93,7 +98,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.PUT, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.PUT, "$baseUrl$TEST_URI", headers,
                     queryParams, TEST_BODY)
             session.flush()
             return out
@@ -139,7 +144,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.POST, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.POST, "$baseUrl$TEST_URI", headers,
                     queryParams, TEST_BODY)
             session.flush()
             return out
@@ -184,7 +189,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.HEAD, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.HEAD, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -229,7 +234,7 @@ class MessengerServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.DELETE, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.DELETE, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out
@@ -272,13 +277,9 @@ class MessengerServiceFunctionalSpec extends Specification {
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
 
-        and: "override the retryInterval default so the test runs faster"
-        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 5
-        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
-
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = messengerService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
                     queryParams)
             session.flush()
             return out

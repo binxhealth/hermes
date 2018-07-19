@@ -1,5 +1,6 @@
 package com.atlasgenetics.hermes.message
 
+import com.atlasgenetics.hermes.utils.RestUtils
 import grails.gorm.transactions.Transactional
 import groovy.time.TimeCategory
 
@@ -73,10 +74,23 @@ class FailedMessageMonitorService {
     /**
      * Convenience method.  Populate {@param args} to specify additional criteria.
      * @param args
-     * @return FailedMessages that failed with a 5xx status code
+     * @return FailedMessages that failed with a 5xx status code or ConnectException
      */
     List<FailedMessage> getValidMessages(Map args = [:]) {
-        return getMessagesWithStatusCodeInRange(500, 1000, args)
+        List<Integer> statusCodes = [RestUtils.CONNECT_EXCEPTION_CODE]
+        statusCodes.addAll((500..1000).toList())
+        args.statusCodes = statusCodes
+        return listFailedMessages(args)
+    }
+
+    /**
+     * Convenience method.  Populate {@param args} to specify additional criteria.
+     * @param args
+     * @return FailedMessages that failed with a ConnectException
+     */
+    List<FailedMessage> getConnectExceptionMessages(Map args = [:]) {
+        args.statusCodes = [RestUtils.CONNECT_EXCEPTION_CODE]
+        return listFailedMessages(args)
     }
 
     /**

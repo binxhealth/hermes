@@ -1,5 +1,6 @@
 package com.atlasgenetics.hermes.message
 
+import com.atlasgenetics.hermes.utils.RestUtils
 import grails.gorm.transactions.Transactional
 
 /**
@@ -32,13 +33,18 @@ class FailedMessageManagerService {
 
     /**
      * Finds all FailedMessages currently eligible for retry.  Messages that failed with 3xx or 4xx error codes
-     * are ineligible for retry as they are invalid; only messages that failed with 5xx error codes should be
-     * retried.
+     * are ineligible for retry as they are invalid; only messages that failed with 5xx error codes or ConnectExceptions
+     * should be retried.
      * @return FailedMessages to retry
      */
     @Transactional(readOnly = true)
     Set<FailedMessage> gatherFailedMessagesForRetry() {
-        Set<FailedMessage> messages = FailedMessage.findAllByStatusCodeGreaterThanEquals(500)
+        Set<FailedMessage> messages = FailedMessage.createCriteria().listDistinct {
+            or {
+                eq('statusCode', RestUtils.CONNECT_EXCEPTION_CODE)
+                ge('statusCode', 500)
+            }
+        } as Set<FailedMessage>
         return messages
     }
 

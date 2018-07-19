@@ -15,7 +15,19 @@ class MessageSenderServiceIntegrationSpec extends Specification {
     def messageSenderService
     def grailsApplication
 
+    Integer originalRetryTimesValue
+
     static final String TEST_URI = "/endpoint"
+
+    def setup() {
+        originalRetryTimesValue = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
+        messageSenderService.init()
+    }
+
+    def cleanup() {
+        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = originalRetryTimesValue
+        messageSenderService.init()
+    }
 
     void "test send message - succeeds on first try"() {
         given: "a mock server expecting the message we want to send"
@@ -95,9 +107,6 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         cmd.url = "${mock.getHttpUrl()}$uri"
         cmd.httpMethod = HttpMethod.GET
 
-        and: "override the retryInterval default so the test runs faster"
-        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
-
         when: "we try to send the message"
         boolean sent  = FailedMessage.withSession { session ->
             boolean out = messageSenderService.sendMessage(cmd)
@@ -140,11 +149,9 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         cmd.url = "${mock.getHttpUrl()}$TEST_URI"
         cmd.httpMethod = HttpMethod.GET
 
-        and: "override the retryInterval default so the test runs faster"
-        grailsApplication.config.com.atlasgenetics.hermes.retryInterval = 0L
-
         and: "the retryTimes configuration property set to override the default value"
         grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 10
+        messageSenderService.init()
 
         when: "we try to send the failing message"
         messageSenderService.sendMessage(cmd)

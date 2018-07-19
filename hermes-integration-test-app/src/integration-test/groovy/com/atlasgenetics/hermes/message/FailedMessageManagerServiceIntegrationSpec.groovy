@@ -1,5 +1,6 @@
 package com.atlasgenetics.hermes.message
 
+import com.atlasgenetics.hermes.utils.RestUtils
 import grails.testing.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.http.HttpMethod
@@ -19,6 +20,11 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
         valid.statusCode = 500
         valid.save()
 
+        FailedMessage connectException = new FailedMessage()
+        connectException.messageData = [foo: 'bar']
+        connectException.statusCode = RestUtils.CONNECT_EXCEPTION_CODE
+        connectException.save()
+
         FailedMessage invalid = new FailedMessage()
         invalid.messageData = [foo: 'bar']
         invalid.statusCode = 400
@@ -30,6 +36,7 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
         then: "only eligible messages are returned"
         messages
         messages.contains(valid)
+        messages.contains(connectException)
         !messages.contains(invalid)
     }
 

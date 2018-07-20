@@ -1,13 +1,17 @@
-# hermes
-A Grails plugin providing guaranteed one-time delivery capabilities for HTTP requests
+# Hermes
+Hermes is a Grails plugin providing guaranteed one-time delivery capabilities for HTTP requests.  This plugin does not
+archive sent messages or response data beyond the status code for failed messages.
 
-Documentation is available on GitHub.
+## Configuration
+
+Application properties:
+
+* `com.atlasgenetics.hermes.retryTimes` - Sets the maximum number of times Hermes should attempt to send a failed
+message during the retry process.  Type: `int`, default value: 5
+* `com.atlasgenetics.hermes.retryInterval` - Sets the time in milliseconds that Hermes will wait between attempts at
+making a given HTTP request during the retry process.  Type: `Long`, default value: `10000L` (10 seconds)
 
 ## This Repo
 
-This is a multi-project build for testing purposes.  The plugin itself is housed in `hermes-plugin`.  In order to
-effectively test a Grails plugin, one must create a full-fledged Grails app that installs the plugin and test it there.
-Unit tests are supported within the plugin itself, but integration tests are not.  Hence, the integration testing app is
-housed in `hermes-integration-test-app`.
-
-Please see the READMEs in their respective folders for more information and instructions.
+This is a multi-project build for testing purposes.  The plugin itself is housed in `hermes-plugin`.  Unit tests are
+in `hermes-plugin`; integration tests are in `hermes-integration-test-app`.

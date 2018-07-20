@@ -1,10 +1,11 @@
 package com.atlasgenetics.hermes.utils
 
 import com.atlasgenetics.hermes.message.MessageCommand
-import com.stehno.ersatz.ContentType
+import com.stehno.ersatz.ContentType as ErsatzContentType
 import com.stehno.ersatz.Decoders
 import com.stehno.ersatz.ErsatzServer
-import org.springframework.http.HttpMethod
+import groovyx.net.http.ContentType
+import groovyx.net.http.Method
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -91,7 +92,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(HttpMethod.GET, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(Method.GET, mock.httpUrl)
 
         when: "the request is sent"
         int status = RestUtils.attemptInitialSend(messageData)
@@ -107,7 +108,7 @@ class RestUtilsSpec extends Specification {
             put(TEST_URI) {
                 query QUERY_KEY, QUERY_VAL
                 header HEADER_KEY, HEADER_VAL
-                body BODY, ContentType.APPLICATION_JSON.value
+                body BODY, ErsatzContentType.APPLICATION_JSON.value
 
                 responder {
                     code HttpStatus.OK.value()
@@ -118,7 +119,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(HttpMethod.PUT, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(Method.PUT, mock.httpUrl)
 
         when: "the request is sent"
         int status = RestUtils.attemptInitialSend(messageData)
@@ -134,7 +135,7 @@ class RestUtilsSpec extends Specification {
             post(TEST_URI) {
                 query QUERY_KEY, QUERY_VAL
                 header HEADER_KEY, HEADER_VAL
-                body BODY, ContentType.APPLICATION_JSON.value
+                body BODY, ErsatzContentType.APPLICATION_JSON.value
 
                 responder {
                     code HttpStatus.OK.value()
@@ -145,7 +146,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(HttpMethod.POST, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(Method.POST, mock.httpUrl)
 
         when: "the request is sent"
         int status = RestUtils.attemptInitialSend(messageData)
@@ -171,7 +172,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(HttpMethod.DELETE, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(Method.DELETE, mock.httpUrl)
 
         when: "the request is sent"
         int status = RestUtils.attemptInitialSend(messageData)
@@ -197,7 +198,7 @@ class RestUtilsSpec extends Specification {
         }
 
         and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(HttpMethod.HEAD, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(Method.HEAD, mock.httpUrl)
 
         when: "the request is sent"
         int status = RestUtils.attemptInitialSend(messageData)
@@ -206,7 +207,7 @@ class RestUtilsSpec extends Specification {
         status == HttpStatus.OK.value()
     }
 
-    private static MessageCommand buildMessageData(HttpMethod method, String baseUrl) {
+    private static MessageCommand buildMessageData(Method method, String baseUrl) {
         def headers = [:]
         headers[HEADER_KEY] = HEADER_VAL
         def queryParams = [:]
@@ -215,9 +216,10 @@ class RestUtilsSpec extends Specification {
         MessageCommand command = new MessageCommand()
         command.url = "$baseUrl$TEST_URI"
         command.headers = headers
+        command.contentType = ContentType.JSON
         command.queryParams = queryParams
-        command.body = BODY
-        command.httpMethod = method.name()
+        if (method in [Method.PUT, Method.POST]) command.body = BODY
+        command.httpMethod = method
         return command
     }
 
@@ -228,7 +230,7 @@ class RestUtilsSpec extends Specification {
      */
     private static ErsatzServer newErsatzServer() {
         ErsatzServer mock = new ErsatzServer()
-        mock.decoder(ContentType.APPLICATION_JSON.value, Decoders.parseJson)
+        mock.decoder(ErsatzContentType.APPLICATION_JSON.value, Decoders.parseJson)
         return mock
     }
 

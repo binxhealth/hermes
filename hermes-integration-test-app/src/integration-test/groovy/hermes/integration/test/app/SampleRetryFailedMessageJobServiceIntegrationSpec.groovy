@@ -4,15 +4,18 @@ import com.atlasgenetics.hermes.message.FailedMessage
 import com.atlasgenetics.hermes.message.MessageCommand
 import com.stehno.ersatz.ErsatzServer
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import groovyx.net.http.ContentType
+import groovyx.net.http.Method
 import hermes.integration.test.app.utils.TestUtils
 import org.hibernate.engine.spi.Status
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 import spock.lang.Specification
 
 @Integration
 @Rollback
+@Transactional
 class SampleRetryFailedMessageJobServiceIntegrationSpec extends Specification {
 
     def sampleRetryFailedMessageJobService
@@ -33,7 +36,8 @@ class SampleRetryFailedMessageJobServiceIntegrationSpec extends Specification {
 
         and: "a FailedMessage ready for retry containing the appropriate data"
         MessageCommand cmd = new MessageCommand()
-        cmd.httpMethod = HttpMethod.GET
+        cmd.httpMethod = Method.GET
+        cmd.contentType = ContentType.JSON
         cmd.url = "${mock.httpUrl}$TEST_URI"
 
         FailedMessage message = new FailedMessage()

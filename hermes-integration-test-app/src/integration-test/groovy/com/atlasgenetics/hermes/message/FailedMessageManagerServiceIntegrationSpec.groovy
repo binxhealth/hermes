@@ -2,13 +2,16 @@ package com.atlasgenetics.hermes.message
 
 import com.atlasgenetics.hermes.utils.RestUtils
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
-import org.springframework.http.HttpMethod
+import groovyx.net.http.ContentType
+import groovyx.net.http.Method
 import org.springframework.http.HttpStatus
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 import spock.lang.Specification
 
 @Integration
 @Rollback
+@Transactional
 class FailedMessageManagerServiceIntegrationSpec extends Specification {
 
     def failedMessageManagerService
@@ -43,7 +46,8 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
     void "test create failed message"() {
         given: "A MessageComand"
         MessageCommand command = new MessageCommand()
-        command.httpMethod = HttpMethod.GET
+        command.httpMethod = Method.GET
+        command.contentType = ContentType.JSON
         command.url = "http://www.test.example.com"
 
         and: "an HTTP status code"

@@ -5,7 +5,6 @@ import groovyx.net.http.Method
 import spock.lang.Specification
 import spock.lang.Unroll
 
-
 class MessageCommandSpec extends Specification {
 
     @Unroll("test buildUri with expected output #expected")

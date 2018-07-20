@@ -82,15 +82,29 @@ bootRun {
 bootRepackage.enabled = false
 grailsPublish {
     // TODO: Provide values here
-    user = 'user'
-    key = 'key'
-    githubSlug = 'foo/bar'
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    userOrg = 'atlasgenetics'
+    githubSlug = 'hermes'
     license {
         name = 'Apache-2.0'
     }
-    title = "My Plugin"
-    desc = "Full plugin description"
-    developers = [johndoe:"John Doe"]
+    title = "Hermes"
+    desc = "A Grails plugin providing guaranteed one-time delivery for HTTP requests"
+    developers = [mauracwarner:"Maura Warner"]
+}
+bintray {
+    pkg {
+        userOrg = 'atlasgenetics' // If you want to publish to an organization
+        repo = 'grails-plugins'
+        name = "$project.name"
+        issueTrackerUrl = "https://github.com/atlasgenetics/hermes/issues"
+        vcsUrl = "https://github.com/atlasgenetics/hermes"
+        version {
+            attributes = ['grails-plugin': "$project.group:$project.name"]
+            name = project.version
+        }
+    }
 }
 
 assets {

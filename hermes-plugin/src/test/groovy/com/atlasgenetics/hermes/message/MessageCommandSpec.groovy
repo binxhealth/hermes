@@ -1,8 +1,10 @@
 package com.atlasgenetics.hermes.message
 
-import org.springframework.http.HttpMethod
+import groovyx.net.http.ContentType
+import groovyx.net.http.Method
 import spock.lang.Specification
 import spock.lang.Unroll
+
 
 class MessageCommandSpec extends Specification {
 
@@ -29,7 +31,8 @@ class MessageCommandSpec extends Specification {
     void "test toMap"() {
         given: "a MessageCommand"
         MessageCommand command = new MessageCommand()
-        command.httpMethod = HttpMethod.GET
+        command.httpMethod = Method.GET
+        command.contentType = ContentType.JSON
         command.url = "http://www.test.example.com/endpoint/val"
         command.queryParams = [param: "value"]
         command.headers = [header: "data"]
@@ -40,6 +43,7 @@ class MessageCommandSpec extends Specification {
         then: "all the data is preserved as expected"
         map.httpMethod == command.httpMethod
         map.url == command.url
+        map.contentType == command.contentType
         map.queryParams == command.queryParams
         map.headers == command.headers
 
@@ -48,6 +52,7 @@ class MessageCommandSpec extends Specification {
 
         then: "all the data transfers back smoothly"
         newCommand.httpMethod == command.httpMethod
+        newCommand.contentType == command.contentType
         newCommand.queryParams == command.queryParams
         newCommand.headers == command.headers
         newCommand.fullUrl == command.fullUrl

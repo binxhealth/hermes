@@ -1,8 +1,9 @@
 package com.atlasgenetics.hermes.message
 
 import grails.gorm.transactions.Transactional
+import groovyx.net.http.ContentType
+import groovyx.net.http.Method
 import org.springframework.context.MessageSource
-import org.springframework.http.HttpMethod
 
 /**
  * This service is the entry point into Hermes for users who wish to take full advantage of its capabilities.  From
@@ -42,16 +43,18 @@ class HermesService {
      * @param httpMethod
      * @param url This can include the queryParams, or they can be included as a separate Map.  NOTE: If the queryParams
      *        are passed in as a Map, url will be put through a URL encoder as part of the queryParam encoding process
+     * @param contentType
      * @param headers
      * @param queryParams
      * @param body
      * @return true if the message was sent successfully; false if it failed
      */
-    boolean makeRequest(HttpMethod httpMethod, String url, Map<String, Object> headers = null,
+    boolean makeRequest(Method httpMethod, String url, ContentType contentType, Map<String, Object> headers = null,
                         Map<String, Object> queryParams = null, Map<String, Object> body = null) {
         MessageCommand messageCommand = new MessageCommand()
         messageCommand.httpMethod = httpMethod
         messageCommand.url = url
+        messageCommand.contentType = contentType
         messageCommand.headers = headers
         messageCommand.queryParams = queryParams
         messageCommand.body = body

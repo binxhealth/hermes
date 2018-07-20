@@ -1,12 +1,14 @@
 package com.atlasgenetics.hermes.message
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
 import groovy.time.TimeCategory
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 import spock.lang.Specification
 
 @Integration
 @Rollback
+@Transactional
 class FailedMessageMonitorServiceIntegrationSpec extends Specification {
 
     FailedMessageMonitorService failedMessageMonitorService

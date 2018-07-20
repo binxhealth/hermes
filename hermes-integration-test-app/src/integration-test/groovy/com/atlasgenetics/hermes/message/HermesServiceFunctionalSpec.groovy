@@ -1,16 +1,19 @@
 package com.atlasgenetics.hermes.message
 
-import com.stehno.ersatz.ContentType
+import com.stehno.ersatz.ContentType as ErsatzContentType
 import com.stehno.ersatz.ErsatzServer
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import groovyx.net.http.ContentType
+import groovyx.net.http.Method
 import hermes.integration.test.app.utils.TestUtils
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 import spock.lang.Specification
 
 @Integration
 @Rollback
+@Transactional
 class HermesServiceFunctionalSpec extends Specification {
 
     def hermesService
@@ -52,7 +55,7 @@ class HermesServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(Method.GET, "$baseUrl$TEST_URI", ContentType.JSON, headers,
                     queryParams)
             session.flush()
             return out
@@ -80,7 +83,7 @@ class HermesServiceFunctionalSpec extends Specification {
             put(TEST_URI) {
                 header(TEST_HEADER_KEY, TEST_HEADER_VAL)
                 query(QUERY_PARAM_KEY, QUERY_PARAM_VAL)
-                body(TEST_BODY, ContentType.APPLICATION_JSON.value)
+                body(TEST_BODY, ErsatzContentType.APPLICATION_JSON.value)
                 responder {
                     code HttpStatus.OK.value()
                 }
@@ -98,7 +101,7 @@ class HermesServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(HttpMethod.PUT, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(Method.PUT, "$baseUrl$TEST_URI", ContentType.JSON, headers,
                     queryParams, TEST_BODY)
             session.flush()
             return out
@@ -126,7 +129,7 @@ class HermesServiceFunctionalSpec extends Specification {
             post(TEST_URI) {
                 header(TEST_HEADER_KEY, TEST_HEADER_VAL)
                 query(QUERY_PARAM_KEY, QUERY_PARAM_VAL)
-                body(TEST_BODY, ContentType.APPLICATION_JSON.value)
+                body(TEST_BODY, ErsatzContentType.APPLICATION_JSON.value)
                 responder {
                     code HttpStatus.OK.value()
                 }
@@ -144,7 +147,7 @@ class HermesServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(HttpMethod.POST, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(Method.POST, "$baseUrl$TEST_URI", ContentType.JSON, headers,
                     queryParams, TEST_BODY)
             session.flush()
             return out
@@ -189,7 +192,7 @@ class HermesServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(HttpMethod.HEAD, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(Method.HEAD, "$baseUrl$TEST_URI", ContentType.JSON, headers,
                     queryParams)
             session.flush()
             return out
@@ -234,7 +237,7 @@ class HermesServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(HttpMethod.DELETE, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(Method.DELETE, "$baseUrl$TEST_URI", ContentType.JSON, headers,
                     queryParams)
             session.flush()
             return out
@@ -279,7 +282,7 @@ class HermesServiceFunctionalSpec extends Specification {
 
         when: "we send the message"
         boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(HttpMethod.GET, "$baseUrl$TEST_URI", headers,
+            boolean out = hermesService.makeRequest(Method.GET, "$baseUrl$TEST_URI", ContentType.JSON, headers,
                     queryParams)
             session.flush()
             return out

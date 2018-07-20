@@ -53,9 +53,6 @@ dependencies {
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails:grails-web-testing-support"
 
-    // Grails RestBuilder plugin
-    compile 'org.grails:grails-datastore-rest-client:5.0.0.RC2'
-
     // grails HTTPBuilder plugin
     compile('org.grails.plugins:http-builder-helper:1.0.2') {
         exclude group: 'xml-apis'

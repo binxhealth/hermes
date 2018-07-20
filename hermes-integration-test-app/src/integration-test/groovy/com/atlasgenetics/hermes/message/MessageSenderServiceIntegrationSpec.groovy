@@ -2,14 +2,17 @@ package com.atlasgenetics.hermes.message
 
 import com.stehno.ersatz.ErsatzServer
 import grails.testing.mixin.integration.Integration
-import grails.transaction.Rollback
+import groovyx.net.http.ContentType
+import groovyx.net.http.Method
 import hermes.integration.test.app.utils.TestUtils
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 import spock.lang.Specification
 
 @Integration
 @Rollback
+@Transactional
 class MessageSenderServiceIntegrationSpec extends Specification {
 
     def messageSenderService
@@ -45,7 +48,8 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         and: "the appropriate message data"
         MessageCommand cmd = new MessageCommand()
         cmd.url = "${mock.getHttpUrl()}$TEST_URI"
-        cmd.httpMethod = HttpMethod.GET
+        cmd.httpMethod = Method.GET
+        cmd.contentType = ContentType.JSON
 
         when: "we try to send the message"
         boolean sent = messageSenderService.sendMessage(cmd)
@@ -76,7 +80,8 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         and: "the appropriate message data"
         MessageCommand cmd = new MessageCommand()
         cmd.url = "${mock.getHttpUrl()}$TEST_URI"
-        cmd.httpMethod = HttpMethod.GET
+        cmd.httpMethod = Method.GET
+        cmd.contentType = ContentType.JSON
 
         when: "we try to send the message"
         boolean sent = messageSenderService.sendMessage(cmd)
@@ -105,7 +110,8 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         and: "the appropriate message data"
         MessageCommand cmd = new MessageCommand()
         cmd.url = "${mock.getHttpUrl()}$uri"
-        cmd.httpMethod = HttpMethod.GET
+        cmd.httpMethod = Method.GET
+        cmd.contentType = ContentType.JSON
 
         when: "we try to send the message"
         boolean sent  = FailedMessage.withSession { session ->
@@ -147,7 +153,8 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         and: "the appropriate message data"
         MessageCommand cmd = new MessageCommand()
         cmd.url = "${mock.getHttpUrl()}$TEST_URI"
-        cmd.httpMethod = HttpMethod.GET
+        cmd.httpMethod = Method.GET
+        cmd.contentType = ContentType.JSON
 
         and: "the retryTimes configuration property set to override the default value"
         grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 10

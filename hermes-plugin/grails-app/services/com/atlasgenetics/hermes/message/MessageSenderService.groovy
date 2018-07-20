@@ -20,7 +20,6 @@ class MessageSenderService {
     private Long retryWaitTime
     private Integer maxRetryTimes
 
-
     @PostConstruct
     void init() {
         retryWaitTime = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryInterval', Long, 10000L)

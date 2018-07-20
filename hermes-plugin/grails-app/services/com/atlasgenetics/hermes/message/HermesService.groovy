@@ -18,7 +18,7 @@ import org.springframework.context.MessageSource
  * same as any message that fails with a 5xx status.  Messages will be saved to the database with a special status code
  * (see {@link com.atlasgenetics.hermes.utils.RestUtils}), and will be eligible for retry at a later date.
  *
- * Please note that Hermes DOES NOT support PATCH requests, INDEX requests, or multipart forms.
+ * Please note that Hermes DOES NOT support multipart forms.
  *
  * Hermes DOES NOT save any response data beyond the status code.  Response bodies etc. will be ignored and discarded.
  *

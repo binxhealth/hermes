@@ -10,7 +10,7 @@ class DefaultHermesResponseHandlerService implements ResponseHandler {
      * or process response bodies or headers.
      * @param response
      */
-    void handleResponse(HttpResponseWrapper response, MessageCommand messageCommand, FailedMessage failedMessage) {
+    void handleResponse(HttpResponseWrapper response, MessageCommand messageCommand, FailedMessage failedMessage = null) {
         // no-op
     }
 

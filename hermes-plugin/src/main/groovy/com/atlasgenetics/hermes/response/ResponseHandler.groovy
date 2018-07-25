@@ -5,6 +5,7 @@ import com.atlasgenetics.hermes.message.MessageCommand
 
 interface ResponseHandler {
 
+    void handleResponse(HttpResponseWrapper response, MessageCommand message)
     void handleResponse(HttpResponseWrapper response, MessageCommand message, FailedMessage failedMessageInstance)
 
 }

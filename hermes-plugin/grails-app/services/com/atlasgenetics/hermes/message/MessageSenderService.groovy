@@ -30,17 +30,19 @@ class MessageSenderService {
     }
 
     boolean sendNewMessage(MessageCommand message) {
-        FailedMessage failedMessage = null
         HttpResponseWrapper response = HttpUtils.makeRequest(message)
         if (response.failed) {
-            failedMessage = failedMessageManagerService.createFailedMessage(message, response.statusCode)
+            FailedMessage failedMessage = failedMessageManagerService.createFailedMessage(message, response.statusCode)
             if (!failedMessage.invalid) {
                 sleep(retryWaitTime)
                 return retryFailedMessage(failedMessage, message)
             }
+            // Custom response handling
+            responseHandler.handleResponse(response, message, failedMessage)
+        } else {
+            // Custom response handling
+            responseHandler.handleResponse(response, message)
         }
-        // Custom response handling
-        responseHandler.handleResponse(response, message, failedMessage)
         return response.succeeded
     }
 
@@ -52,7 +54,7 @@ class MessageSenderService {
             if (response.succeeded) {
                 failedMessageManagerService.purgeMessage(message)
                 // Custom response handling
-                responseHandler.handleResponse(response, messageCommand, null)
+                responseHandler.handleResponse(response, messageCommand)
             } else {
                 failedMessageManagerService.completeFailedRetryProcess(message, response.statusCode)
                 // Custom response handling

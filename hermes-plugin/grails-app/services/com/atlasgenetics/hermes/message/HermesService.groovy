@@ -76,7 +76,7 @@ class HermesService {
             }.join('; ')
             throw new IllegalArgumentException(errorMsg)
         } else {
-            return messageSenderService.sendMessage(messageCommand)
+            return messageSenderService.sendNewMessage(messageCommand)
         }
     }
 }

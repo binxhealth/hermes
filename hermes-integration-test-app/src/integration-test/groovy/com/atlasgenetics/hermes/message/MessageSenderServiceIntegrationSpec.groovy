@@ -52,7 +52,7 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         cmd.contentType = ContentType.JSON
 
         when: "we try to send the message"
-        boolean sent = messageSenderService.sendMessage(cmd)
+        boolean sent = messageSenderService.sendNewMessage(cmd)
 
         then: "it succeeds"
         sent
@@ -84,7 +84,7 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         cmd.contentType = ContentType.JSON
 
         when: "we try to send the message"
-        boolean sent = messageSenderService.sendMessage(cmd)
+        boolean sent = messageSenderService.sendNewMessage(cmd)
 
         then: "it succeeds"
         sent
@@ -115,7 +115,7 @@ class MessageSenderServiceIntegrationSpec extends Specification {
 
         when: "we try to send the message"
         boolean sent  = FailedMessage.withSession { session ->
-            boolean out = messageSenderService.sendMessage(cmd)
+            boolean out = messageSenderService.sendNewMessage(cmd)
             session.flush()
             return out
         }
@@ -161,7 +161,7 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         messageSenderService.init()
 
         when: "we try to send the failing message"
-        messageSenderService.sendMessage(cmd)
+        messageSenderService.sendNewMessage(cmd)
 
         then: "the mock server will be called the expected number of times, rather than the default"
         mock.verify()

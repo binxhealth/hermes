@@ -21,55 +21,47 @@ class MessageSenderService {
     ResponseHandler responseHandler
 
     private Long retryWaitTime
-    private Integer maxRetryTimes
+    private Integer maxRetryAttempts
 
     @PostConstruct
     void init() {
         retryWaitTime = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryInterval', Long, 10000L)
-        maxRetryTimes =  grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
+        maxRetryAttempts =  grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
     }
 
-    boolean sendMessage(MessageCommand message) {
-        HttpResponseWrapper response = HttpUtils.attemptInitialSend(message)
+    boolean sendNewMessage(MessageCommand message) {
+        FailedMessage failedMessage = null
+        HttpResponseWrapper response = HttpUtils.makeRequest(message)
         if (response.failed) {
-            FailedMessage failedMessage = failedMessageManagerService.createFailedMessage(message, response.statusCode)
-            sleep(retryWaitTime)
-            return retryFailedMessage(failedMessage, message, response)
-        } else {
-            // Custom response handling
-            responseHandler.handleResponse(response)
-            return true
+            failedMessage = failedMessageManagerService.createFailedMessage(message, response.statusCode)
+            if (!failedMessage.invalid) {
+                sleep(retryWaitTime)
+                return retryFailedMessage(failedMessage, message)
+            }
         }
+        // Custom response handling
+        responseHandler.handleResponse(response, message, failedMessage)
+        return response.succeeded
     }
 
-    /**
-     * Please note that this method assumes
-     * @param message
-     * @param command
-     * @param responseWrapper
-     * @return true if the message was sent successfully, false otherwise
-     */
-    boolean retryFailedMessage(FailedMessage message, MessageCommand command = null,
-                               HttpResponseWrapper responseWrapper = null) {
+    boolean retryFailedMessage(FailedMessage message, MessageCommand messageCommand = null) {
         if (!message.invalid) {
-            // Create objects that will not be provided by retry jobs
-            if (!command) command = new MessageCommand(message.messageData)
-            if (!responseWrapper) responseWrapper = new HttpResponseWrapper(statusCode: message.statusCode)
-            // Perform retry operation
-            responseWrapper = HttpUtils.retryMessage(command, maxRetryTimes, retryWaitTime, responseWrapper)
-            // Custom response handling
-            responseHandler.handleResponse(responseWrapper)
-            if (responseWrapper.succeeded) {
+            if (!messageCommand) messageCommand = new MessageCommand(message.messageData)
+            HttpResponseWrapper response = HttpUtils.retryMessage(messageCommand, message.statusCode,
+                    maxRetryAttempts, retryWaitTime)
+            if (response.succeeded) {
                 failedMessageManagerService.purgeMessage(message)
-                return true
+                // Custom response handling
+                responseHandler.handleResponse(response, messageCommand, null)
             } else {
-                failedMessageManagerService.completeFailedRetryProcess(message, responseWrapper.statusCode)
-                return false
+                failedMessageManagerService.completeFailedRetryProcess(message, response.statusCode)
+                // Custom response handling
+                responseHandler.handleResponse(response, messageCommand, message)
             }
+            return response.succeeded
         } else {
-            // Custom response handling
-            if (responseWrapper) responseHandler.handleResponse(responseWrapper)
-            return false
+            throw new IllegalArgumentException("FailedMessage with HTTP status code ${message.statusCode} is invalid" +
+                    " and not eligible for retry")
         }
     }
 

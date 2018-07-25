@@ -32,39 +32,7 @@ class HttpUtils {
      * @param message
      * @return the HTTP status code of the response
      */
-    static HttpResponseWrapper attemptInitialSend(MessageCommand message) {
-        return makeRequest(message)
-    }
-
-    /**
-     * Retries a failed HTTP request up to a given number of times.
-     * @param command The failed message
-     * @param times The desired maximum number of retry attempts
-     * @return the HTTP status code of the last response received
-     */
-    static HttpResponseWrapper retryMessage(MessageCommand command, int times, Long waitTime,
-                                            HttpResponseWrapper responseWrapper) {
-        while (responseWrapper.failed && !responseWrapper.invalid && times > 0) {
-            responseWrapper = makeRequest(command)
-            times--
-            if (times > 0) sleep(waitTime)
-        }
-        return responseWrapper
-    }
-
-    static boolean isFailureCode(int statusCode) {
-        300 <= statusCode || statusCode == CONNECT_EXCEPTION_CODE
-    }
-
-    static boolean isInvalidMessageCode(int statusCode) {
-        300 <= statusCode && statusCode < 500
-    }
-
-    static boolean isSuccessCode(int statusCode) {
-        200 <= statusCode && statusCode < 300
-    }
-
-    private static HttpResponseWrapper makeRequest(MessageCommand messageData) {
+    static HttpResponseWrapper makeRequest(MessageCommand messageData) {
         try {
             HttpResponseWrapper responseWrapper = new HttpResponseWrapper()
             HTTPBuilder http = new HTTPBuilder()
@@ -84,6 +52,35 @@ class HttpUtils {
         } catch (ConnectException e) {
             return new HttpResponseWrapper(statusCode: CONNECT_EXCEPTION_CODE)
         }
+    }
+
+    /**
+     * Retries a failed HTTP request up to a given number of times.
+     * @param command The failed message
+     * @param times The desired maximum number of retry attempts
+     * @return the HTTP status code of the last response received
+     */
+    static HttpResponseWrapper retryMessage(MessageCommand command, int latestStatusCode, int times,
+                                            Long waitTime) {
+        HttpResponseWrapper latestResponse = new HttpResponseWrapper(statusCode: latestStatusCode)
+        while (latestResponse.failed && !latestResponse.invalid && times > 0) {
+            latestResponse = makeRequest(command)
+            times--
+            if (times > 0) sleep(waitTime)
+        }
+        return latestResponse
+    }
+
+    static boolean isFailureCode(int statusCode) {
+        300 <= statusCode || statusCode == CONNECT_EXCEPTION_CODE
+    }
+
+    static boolean isInvalidMessageCode(int statusCode) {
+        300 <= statusCode && statusCode < 500
+    }
+
+    static boolean isSuccessCode(int statusCode) {
+        200 <= statusCode && statusCode < 300
     }
 
     private static void populateResponseWrapper(HttpResponseWrapper wrapper, def httpResponse, def responseBody) {

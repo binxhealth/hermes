@@ -1,6 +1,8 @@
 package com.atlasgenetics.hermes.message
 
-import com.atlasgenetics.hermes.utils.RestUtils
+import com.atlasgenetics.hermes.response.HttpResponseWrapper
+import com.atlasgenetics.hermes.response.ResponseHandler
+import com.atlasgenetics.hermes.utils.HttpUtils
 import grails.core.GrailsApplication
 import grails.gorm.transactions.Transactional
 
@@ -16,6 +18,7 @@ class MessageSenderService {
 
     FailedMessageManagerService failedMessageManagerService
     GrailsApplication grailsApplication
+    ResponseHandler responseHandler
 
     private Long retryWaitTime
     private Integer maxRetryTimes
@@ -27,29 +30,45 @@ class MessageSenderService {
     }
 
     boolean sendMessage(MessageCommand message) {
-        int status = RestUtils.attemptInitialSend(message)
-        if (RestUtils.isFailureCode(status)) {
-            FailedMessage failedMessage = failedMessageManagerService.createFailedMessage(message, status)
+        HttpResponseWrapper response = HttpUtils.attemptInitialSend(message)
+        if (response.failed) {
+            FailedMessage failedMessage = failedMessageManagerService.createFailedMessage(message, response.statusCode)
             sleep(retryWaitTime)
-            return retryFailedMessage(failedMessage, message)
+            return retryFailedMessage(failedMessage, message, response)
+        } else {
+            // Custom response handling
+            responseHandler.handleResponse(response)
+            return true
         }
-        return true
     }
 
-    boolean retryFailedMessage(FailedMessage message, MessageCommand command = null) {
-        if (!command) {
-            command = new MessageCommand(message.messageData)
-        }
+    /**
+     * Please note that this method assumes
+     * @param message
+     * @param command
+     * @param responseWrapper
+     * @return true if the message was sent successfully, false otherwise
+     */
+    boolean retryFailedMessage(FailedMessage message, MessageCommand command = null,
+                               HttpResponseWrapper responseWrapper = null) {
         if (!message.invalid) {
-            int statusCode = RestUtils.retryMessage(command, maxRetryTimes, retryWaitTime, message.statusCode)
-            if (RestUtils.isSuccessCode(statusCode)) {
+            // Create objects that will not be provided by retry jobs
+            if (!command) command = new MessageCommand(message.messageData)
+            if (!responseWrapper) responseWrapper = new HttpResponseWrapper(statusCode: message.statusCode)
+            // Perform retry operation
+            responseWrapper = HttpUtils.retryMessage(command, maxRetryTimes, retryWaitTime, responseWrapper)
+            // Custom response handling
+            responseHandler.handleResponse(responseWrapper)
+            if (responseWrapper.succeeded) {
                 failedMessageManagerService.purgeMessage(message)
                 return true
             } else {
-                failedMessageManagerService.completeFailedRetryProcess(message, statusCode)
+                failedMessageManagerService.completeFailedRetryProcess(message, responseWrapper.statusCode)
                 return false
             }
         } else {
+            // Custom response handling
+            if (responseWrapper) responseHandler.handleResponse(responseWrapper)
             return false
         }
     }

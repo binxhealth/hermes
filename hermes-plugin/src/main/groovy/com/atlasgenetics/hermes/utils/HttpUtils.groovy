@@ -1,6 +1,7 @@
 package com.atlasgenetics.hermes.utils
 
 import com.atlasgenetics.hermes.message.MessageCommand
+import com.atlasgenetics.hermes.response.HttpResponseWrapper
 import groovyx.net.http.HTTPBuilder
 
 /**
@@ -17,7 +18,7 @@ import groovyx.net.http.HTTPBuilder
  *
  * @author Maura Warner
  */
-class RestUtils {
+class HttpUtils {
 
     /**
      * If a request fails with a ConnectException (e.g. a 'connection refused' error,) the status code for that
@@ -31,7 +32,7 @@ class RestUtils {
      * @param message
      * @return the HTTP status code of the response
      */
-    static int attemptInitialSend(MessageCommand message) {
+    static HttpResponseWrapper attemptInitialSend(MessageCommand message) {
         return makeRequest(message)
     }
 
@@ -41,13 +42,14 @@ class RestUtils {
      * @param times The desired maximum number of retry attempts
      * @return the HTTP status code of the last response received
      */
-    static int retryMessage(MessageCommand command, int times, Long waitTime, int statusCode) {
-        while (isFailureCode(statusCode) && !isInvalidMessageCode(statusCode) && times > 0) {
-            statusCode = makeRequest(command)
+    static HttpResponseWrapper retryMessage(MessageCommand command, int times, Long waitTime,
+                                            HttpResponseWrapper responseWrapper) {
+        while (responseWrapper.failed && !responseWrapper.invalid && times > 0) {
+            responseWrapper = makeRequest(command)
             times--
             if (times > 0) sleep(waitTime)
         }
-        return statusCode
+        return responseWrapper
     }
 
     static boolean isFailureCode(int statusCode) {
@@ -62,25 +64,32 @@ class RestUtils {
         200 <= statusCode && statusCode < 300
     }
 
-    private static int makeRequest(MessageCommand messageData) {
+    private static HttpResponseWrapper makeRequest(MessageCommand messageData) {
         try {
-            int responseStatus
+            HttpResponseWrapper responseWrapper = new HttpResponseWrapper()
             HTTPBuilder http = new HTTPBuilder()
             http.request(messageData.fullUrl, messageData.httpMethod, messageData.contentType) {
                 if (messageData.headers) headers = messageData.headers
                 if (messageData.body) body = messageData.body
 
-                response.success = { resp ->
-                    responseStatus = resp.status
+                responseWrapper.success = { resp, body ->
+                    populateResponseWrapper(responseWrapper, resp, body)
                 }
 
-                response.failure = { resp ->
-                    responseStatus = resp.status
+                responseWrapper.failure = { resp, body ->
+                    populateResponseWrapper(responseWrapper, resp, body)
                 }
             }
-            return responseStatus
+            return responseWrapper
         } catch (ConnectException e) {
-            return CONNECT_EXCEPTION_CODE
+            return new HttpResponseWrapper(statusCode: CONNECT_EXCEPTION_CODE)
         }
     }
+
+    private static void populateResponseWrapper(HttpResponseWrapper wrapper, def httpResponse, def responseBody) {
+        wrapper.statusCode = httpResponse.status
+        wrapper.headers = httpResponse.headers
+        wrapper.body = responseBody
+    }
+
 }

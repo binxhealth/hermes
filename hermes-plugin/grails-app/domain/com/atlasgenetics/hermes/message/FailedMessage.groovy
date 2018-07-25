@@ -1,6 +1,6 @@
 package com.atlasgenetics.hermes.message
 
-import com.atlasgenetics.hermes.utils.RestUtils
+import com.atlasgenetics.hermes.utils.HttpUtils
 import net.kaleidos.hibernate.usertype.JsonbMapType
 
 class FailedMessage {
@@ -19,15 +19,15 @@ class FailedMessage {
     }
 
     boolean isInvalid() {
-        RestUtils.isInvalidMessageCode(statusCode)
+        HttpUtils.isInvalidMessageCode(statusCode)
     }
 
     boolean isFailed() {
-        RestUtils.isFailureCode(statusCode)
+        HttpUtils.isFailureCode(statusCode)
     }
 
     boolean isSucceeded() {
-        RestUtils.isSuccessCode(statusCode)
+        HttpUtils.isSuccessCode(statusCode)
     }
 
 }

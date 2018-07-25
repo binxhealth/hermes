@@ -1,6 +1,6 @@
 package com.atlasgenetics.hermes.message
 
-import com.atlasgenetics.hermes.utils.RestUtils
+import com.atlasgenetics.hermes.utils.HttpUtils
 import grails.testing.mixin.integration.Integration
 import groovyx.net.http.ContentType
 import groovyx.net.http.Method
@@ -25,7 +25,7 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
 
         FailedMessage connectException = new FailedMessage()
         connectException.messageData = [foo: 'bar']
-        connectException.statusCode = RestUtils.CONNECT_EXCEPTION_CODE
+        connectException.statusCode = HttpUtils.CONNECT_EXCEPTION_CODE
         connectException.save()
 
         FailedMessage invalid = new FailedMessage()

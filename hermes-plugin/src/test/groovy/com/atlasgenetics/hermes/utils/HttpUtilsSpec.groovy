@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class RestUtilsSpec extends Specification {
+class HttpUtilsSpec extends Specification {
 
     static final String TEST_URI = "/test/foo"
     static final String HEADER_KEY = "Header"
@@ -22,57 +22,57 @@ class RestUtilsSpec extends Specification {
     @Unroll("test isInvalid with status #statusCode and expected value #expected")
     void "test isInvalid"() {
         when: "we check a code for validity"
-        boolean out = RestUtils.isInvalidMessageCode(statusCode)
+        boolean out = HttpUtils.isInvalidMessageCode(statusCode)
 
         then: "the result is as expected"
         out == expected
 
         where:
-        statusCode                              || expected
-        HttpStatus.OK.value()                   || false
-        HttpStatus.BAD_REQUEST.value()          || true
-        HttpStatus.INTERNAL_SERVER_ERROR.value()|| false
-        HttpStatus.NOT_FOUND.value()            || true
-        HttpStatus.PERMANENT_REDIRECT.value()   || true
-        RestUtils.CONNECT_EXCEPTION_CODE        || false
+        statusCode                               || expected
+        HttpStatus.OK.value()                    || false
+        HttpStatus.BAD_REQUEST.value()           || true
+        HttpStatus.INTERNAL_SERVER_ERROR.value() || false
+        HttpStatus.NOT_FOUND.value()             || true
+        HttpStatus.PERMANENT_REDIRECT.value()    || true
+        HttpUtils.CONNECT_EXCEPTION_CODE         || false
     }
 
     @Unroll("test isFailed with status #statusCode and expected value #expected")
     void "test isFailed"() {
         when: "we check if a code is a failure"
-        boolean out = RestUtils.isFailureCode(statusCode)
+        boolean out = HttpUtils.isFailureCode(statusCode)
 
         then: "the result is as expected"
         out == expected
 
         where:
-        statusCode                              || expected
-        HttpStatus.OK.value()                   || false
-        HttpStatus.BAD_REQUEST.value()          || true
-        HttpStatus.REQUEST_TIMEOUT.value()      || true
-        HttpStatus.INTERNAL_SERVER_ERROR.value()|| true
-        HttpStatus.NOT_FOUND.value()            || true
-        HttpStatus.PERMANENT_REDIRECT.value()   || true
-        RestUtils.CONNECT_EXCEPTION_CODE        || true
+        statusCode                               || expected
+        HttpStatus.OK.value()                    || false
+        HttpStatus.BAD_REQUEST.value()           || true
+        HttpStatus.REQUEST_TIMEOUT.value()       || true
+        HttpStatus.INTERNAL_SERVER_ERROR.value() || true
+        HttpStatus.NOT_FOUND.value()             || true
+        HttpStatus.PERMANENT_REDIRECT.value()    || true
+        HttpUtils.CONNECT_EXCEPTION_CODE         || true
     }
 
     @Unroll("test isSucceeded with status #statusCode and expected value #expected")
     void "test isSucceeded"() {
         when: "we check if a code is a success"
-        boolean out = RestUtils.isSuccessCode(statusCode)
+        boolean out = HttpUtils.isSuccessCode(statusCode)
 
         then: "the result is as expected"
         out == expected
 
         where:
-        statusCode                              || expected
-        HttpStatus.OK.value()                   || true
-        HttpStatus.BAD_REQUEST.value()          || false
-        HttpStatus.REQUEST_TIMEOUT.value()      || false
-        HttpStatus.INTERNAL_SERVER_ERROR.value()|| false
-        HttpStatus.NOT_FOUND.value()            || false
-        HttpStatus.PERMANENT_REDIRECT.value()   || false
-        RestUtils.CONNECT_EXCEPTION_CODE        || false
+        statusCode                               || expected
+        HttpStatus.OK.value()                    || true
+        HttpStatus.BAD_REQUEST.value()           || false
+        HttpStatus.REQUEST_TIMEOUT.value()       || false
+        HttpStatus.INTERNAL_SERVER_ERROR.value() || false
+        HttpStatus.NOT_FOUND.value()             || false
+        HttpStatus.PERMANENT_REDIRECT.value()    || false
+        HttpUtils.CONNECT_EXCEPTION_CODE         || false
     }
 
     void "test makeRequest - GET"() {
@@ -95,7 +95,7 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.GET, mock.httpUrl)
 
         when: "the request is sent"
-        int status = RestUtils.attemptInitialSend(messageData)
+        int status = HttpUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()
@@ -122,7 +122,7 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.PUT, mock.httpUrl)
 
         when: "the request is sent"
-        int status = RestUtils.attemptInitialSend(messageData)
+        int status = HttpUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()
@@ -149,7 +149,7 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.POST, mock.httpUrl)
 
         when: "the request is sent"
-        int status = RestUtils.attemptInitialSend(messageData)
+        int status = HttpUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()
@@ -175,7 +175,7 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.DELETE, mock.httpUrl)
 
         when: "the request is sent"
-        int status = RestUtils.attemptInitialSend(messageData)
+        int status = HttpUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()
@@ -201,7 +201,7 @@ class RestUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.HEAD, mock.httpUrl)
 
         when: "the request is sent"
-        int status = RestUtils.attemptInitialSend(messageData)
+        int status = HttpUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()

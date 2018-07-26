@@ -55,7 +55,7 @@ however.
 ### Writing retry jobs
 
 Hermes contains no baked-in retry job implementation.  Users who wish to build scheduled or triggerable jobs that poll
-th `failed_message` table and retry messages persisted there must write the jobs themselves.
+the `failed_message` table and retry messages persisted there must write the jobs themselves.
 
 `MessageSenderService.retryMessage()` is the recommended entry point for any retry job.  It will give the full benefit
 of Hermes' features, without creating any duplicate `FailedMessage` instances that would be caused by a retry job

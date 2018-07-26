@@ -1,5 +1,6 @@
 package com.atlasgenetics.hermes.message
 
+import com.atlasgenetics.hermes.response.HttpResponse
 import grails.gorm.transactions.Transactional
 import groovyx.net.http.ContentType
 import groovyx.net.http.Method
@@ -50,11 +51,11 @@ class HermesService {
      * @param headers
      * @param queryParams
      * @param body
-     * @return true if the message was sent successfully; false if it failed
+     * @return the last response received while attempting to send the message
      */
-    boolean makeRequest(Method httpMethod, String url, ContentType contentType, Map<String, Object> metadata = null,
-                        Map<String, Object> headers = null, Map<String, Object> queryParams = null,
-                        Map<String, Object> body = null) {
+    HttpResponse makeRequest(Method httpMethod, String url, ContentType contentType, Map<String, Object> metadata = null,
+                             Map<String, Object> headers = null, Map<String, Object> queryParams = null,
+                             Map<String, Object> body = null) {
         MessageCommand messageCommand = new MessageCommand()
         messageCommand.httpMethod = httpMethod
         messageCommand.url = url
@@ -71,9 +72,9 @@ class HermesService {
      * functionality that Hermes supplies.  Please see {@link MessageCommand} for input validation rules.
      *
      * @param messageCommand prebuilt MessageCommand object
-     * @return true if the message was sent successfully; false if it failed
+     * @return the last response received while attempting to send the message
      */
-    boolean makeRequest(MessageCommand messageCommand) {
+    HttpResponse makeRequest(MessageCommand messageCommand) {
         messageCommand.validate()
         if (messageCommand.hasErrors()) {
             String errorMsg = messageCommand.errors.allErrors*.collect {

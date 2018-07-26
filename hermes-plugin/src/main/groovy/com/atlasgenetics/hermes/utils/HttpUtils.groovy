@@ -1,7 +1,7 @@
 package com.atlasgenetics.hermes.utils
 
 import com.atlasgenetics.hermes.message.MessageCommand
-import com.atlasgenetics.hermes.response.HttpResponseWrapper
+import com.atlasgenetics.hermes.response.HttpResponse
 import groovyx.net.http.HTTPBuilder
 
 /**
@@ -9,7 +9,7 @@ import groovyx.net.http.HTTPBuilder
  *
  * HTTP response status handling:
  * - 2xx response codes are treated as successes
- * - 3xx and 4xx response codes are treated as failures indiciating an invalid message; messages that fail with these
+ * - 3xx and 4xx response codes are treated as failures indicating an invalid message; messages that fail with these
  *   codes will not be retried
  * - 5xx response codes are treated as failures, but the message itself is still regarded as valid and eligible for
  *   retry
@@ -32,9 +32,9 @@ class HttpUtils {
      * @param message
      * @return the HTTP status code of the response
      */
-    static HttpResponseWrapper makeRequest(MessageCommand messageData) {
+    static HttpResponse makeRequest(MessageCommand messageData) {
         try {
-            HttpResponseWrapper responseWrapper = new HttpResponseWrapper()
+            HttpResponse responseWrapper = new HttpResponse()
             HTTPBuilder http = new HTTPBuilder()
             http.request(messageData.fullUrl, messageData.httpMethod, messageData.contentType) {
                 if (messageData.headers) headers = messageData.headers
@@ -50,7 +50,7 @@ class HttpUtils {
             }
             return responseWrapper
         } catch (ConnectException e) {
-            return new HttpResponseWrapper(statusCode: CONNECT_EXCEPTION_CODE)
+            return new HttpResponse(statusCode: CONNECT_EXCEPTION_CODE)
         }
     }
 
@@ -60,9 +60,9 @@ class HttpUtils {
      * @param times The desired maximum number of retry attempts
      * @return the HTTP status code of the last response received
      */
-    static HttpResponseWrapper retryMessage(MessageCommand command, int latestStatusCode, int times,
-                                            Long waitTime) {
-        HttpResponseWrapper latestResponse = new HttpResponseWrapper(statusCode: latestStatusCode)
+    static HttpResponse retryMessage(MessageCommand command, int latestStatusCode, int times,
+                                     Long waitTime) {
+        HttpResponse latestResponse = new HttpResponse(statusCode: latestStatusCode)
         while (latestResponse.failed && !latestResponse.invalid && times > 0) {
             latestResponse = makeRequest(command)
             times--
@@ -75,6 +75,10 @@ class HttpUtils {
         300 <= statusCode || statusCode == CONNECT_EXCEPTION_CODE
     }
 
+    static boolean isRedirectCode(int statusCode) {
+        300 <= statusCode && statusCode < 400
+    }
+
     static boolean isInvalidMessageCode(int statusCode) {
         300 <= statusCode && statusCode < 500
     }
@@ -83,7 +87,7 @@ class HttpUtils {
         200 <= statusCode && statusCode < 300
     }
 
-    private static void populateResponseWrapper(HttpResponseWrapper wrapper, def httpResponse, def responseBody) {
+    private static void populateResponseWrapper(HttpResponse wrapper, def httpResponse, def responseBody) {
         wrapper.statusCode = httpResponse.status
         wrapper.headers = httpResponse.headers
         wrapper.body = responseBody

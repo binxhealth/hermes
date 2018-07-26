@@ -4,7 +4,7 @@ import com.atlasgenetics.hermes.utils.HttpUtils
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class HttpResponseWrapper {
+class HttpResponse {
     int statusCode
     Map<String, String> headers
     Map<String, Object> body

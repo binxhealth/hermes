@@ -20,4 +20,8 @@ class HttpResponse {
     boolean isInvalid() {
         HttpUtils.isInvalidMessageCode(statusCode)
     }
+
+    boolean getIsRedirect() {
+        HttpUtils.isRedirectCode(statusCode)
+    }
 }

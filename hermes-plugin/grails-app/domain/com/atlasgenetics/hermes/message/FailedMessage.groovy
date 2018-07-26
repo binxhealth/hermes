@@ -30,4 +30,8 @@ class FailedMessage {
         HttpUtils.isSuccessCode(statusCode)
     }
 
+    boolean getIsRedirect() {
+        HttpUtils.isRedirectCode(statusCode)
+    }
+
 }

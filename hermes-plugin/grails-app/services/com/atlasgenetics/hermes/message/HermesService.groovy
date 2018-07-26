@@ -46,8 +46,8 @@ class HermesService {
      *        are passed in as a Map, url will be put through a URL encoder as part of the queryParam encoding process
      * @param contentType
      * @param metadata This is a Map that allows users to store specific data about a given HTTP request that they
-     *        require, but that Hermes does not, e.g. data required by a custom response handler.  Hermes will retain
-     *        the data and persist it in the event that the message fails, but will otherwise ignore it.
+     *        require, but that Hermes does not.  Hermes will retain the data and persist it in the event that the
+     *        message fails, but will otherwise ignore it.
      * @param headers
      * @param queryParams
      * @param body

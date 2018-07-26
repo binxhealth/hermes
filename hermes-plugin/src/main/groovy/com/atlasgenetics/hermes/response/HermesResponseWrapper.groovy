@@ -2,12 +2,21 @@ package com.atlasgenetics.hermes.response
 
 import com.atlasgenetics.hermes.utils.HttpStatusUtils
 import groovy.transform.CompileStatic
+import groovyx.net.http.HttpResponseDecorator
+import org.apache.http.Header
 
-@CompileStatic
-class HttpResponse {
+class HermesResponseWrapper {
     int statusCode
-    Map<String, String> headers
-    Map<String, Object> body
+    Map<String, Object> headers
+    def payload
+    Long failedMessageId
+
+    void setHeaders(Header[] allHeaders) {
+        headers = [:]
+        allHeaders.toList().each {
+            headers[it.name] = it.value
+        }
+    }
 
     boolean isSucceeded() {
         HttpStatusUtils.isSuccessCode(statusCode)
@@ -21,7 +30,7 @@ class HttpResponse {
         HttpStatusUtils.isInvalidMessageCode(statusCode)
     }
 
-    boolean getIsRedirect() {
+    boolean isRedirected() {
         HttpStatusUtils.isRedirectCode(statusCode)
     }
 }

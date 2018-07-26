@@ -1,8 +1,9 @@
 package com.atlasgenetics.hermes.message
 
-import com.atlasgenetics.hermes.response.HttpResponse
+import com.atlasgenetics.hermes.response.HermesResponseWrapper
 import com.atlasgenetics.hermes.utils.HttpStatusUtils
 import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.HttpResponseDecorator
 import org.apache.http.client.HttpClient
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.config.SocketConfig
@@ -38,24 +39,24 @@ class HttpService {
      * @param messageData Everything needed to build the request
      * @return response
      */
-    HttpResponse makeRequest(MessageCommand messageData) {
+    HermesResponseWrapper makeRequest(MessageCommand messageData) {
         try {
-            HttpResponse responseWrapper = new HttpResponse()
+            HermesResponseWrapper responseWrapper = new HermesResponseWrapper()
             http.request(messageData.fullUrl, messageData.httpMethod, messageData.contentType) {
                 if (messageData.headers) headers = messageData.headers
                 if (messageData.body) body = messageData.body
 
-                responseWrapper.success = { resp, body ->
-                    populateResponseWrapper(responseWrapper, resp, body)
+                response.success = { HttpResponseDecorator resp, def payload ->
+                    populateResponseWrapper(responseWrapper, resp, payload)
                 }
 
-                responseWrapper.failure = { resp, body ->
-                    populateResponseWrapper(responseWrapper, resp, body)
+                response.failure = { HttpResponseDecorator resp, def payload ->
+                    populateResponseWrapper(responseWrapper, resp, payload)
                 }
             }
             return responseWrapper
         } catch (ConnectException e) {
-            return new HttpResponse(statusCode: HttpStatusUtils.CONNECT_EXCEPTION_CODE)
+            return new HermesResponseWrapper(statusCode: HttpStatusUtils.CONNECT_EXCEPTION_CODE)
         }
     }
 
@@ -65,8 +66,8 @@ class HttpService {
      * @param latestStatusCode The status code with which the message most recently failed
      * @return the last response received during the retry process
      */
-    HttpResponse retryMessage(MessageCommand command, int latestStatusCode) {
-        HttpResponse latestResponse = new HttpResponse(statusCode: latestStatusCode)
+    HermesResponseWrapper retryMessage(MessageCommand command, int latestStatusCode) {
+        HermesResponseWrapper latestResponse = new HermesResponseWrapper(statusCode: latestStatusCode)
         int attempts = 0
         while (latestResponse.failed && !latestResponse.invalid && attempts < maxRetryAttempts) {
             sleep(retryInterval)
@@ -76,9 +77,10 @@ class HttpService {
         return latestResponse
     }
 
-    private static void populateResponseWrapper(HttpResponse wrapper, def httpResponse, def responseBody) {
+    private static void populateResponseWrapper(HermesResponseWrapper wrapper, HttpResponseDecorator httpResponse,
+                                                def payload) {
         wrapper.statusCode = httpResponse.status
-        wrapper.headers = httpResponse.headers
-        wrapper.body = responseBody
+        wrapper.headers = httpResponse.allHeaders
+        wrapper.payload = payload
     }
 }

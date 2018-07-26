@@ -1,10 +1,9 @@
 package com.atlasgenetics.hermes.message
 
-import com.atlasgenetics.hermes.response.HttpResponse
+import com.atlasgenetics.hermes.response.HermesResponseWrapper
 import grails.gorm.transactions.Transactional
 import groovyx.net.http.ContentType
 import groovyx.net.http.Method
-import org.springframework.context.MessageSource
 
 /**
  * This service is the entry point into Hermes for users who wish to take full advantage of its capabilities.  From
@@ -34,8 +33,8 @@ import org.springframework.context.MessageSource
 @Transactional
 class HermesService {
 
-    MessageSenderService messageSenderService
-    MessageSource messageSource
+    def messageSenderService
+    def messageSource
 
     /**
      * Entry point for Hermes users.  Through this method, you can invoke the message sending and persistence
@@ -53,9 +52,9 @@ class HermesService {
      * @param body
      * @return the last response received while attempting to send the message
      */
-    HttpResponse makeRequest(Method httpMethod, String url, ContentType contentType, Map<String, Object> metadata = null,
-                             Map<String, Object> headers = null, Map<String, Object> queryParams = null,
-                             Map<String, Object> body = null) {
+    HermesResponseWrapper makeRequest(Method httpMethod, String url, ContentType contentType, Map<String, Object> metadata = null,
+                                      Map<String, Object> headers = null, Map<String, Object> queryParams = null,
+                                      Map<String, Object> body = null) {
         MessageCommand messageCommand = new MessageCommand()
         messageCommand.httpMethod = httpMethod
         messageCommand.url = url
@@ -74,7 +73,7 @@ class HermesService {
      * @param messageCommand prebuilt MessageCommand object
      * @return the last response received while attempting to send the message
      */
-    HttpResponse makeRequest(MessageCommand messageCommand) {
+    HermesResponseWrapper makeRequest(MessageCommand messageCommand) {
         messageCommand.validate()
         if (messageCommand.hasErrors()) {
             String errorMsg = messageCommand.errors.allErrors*.collect {

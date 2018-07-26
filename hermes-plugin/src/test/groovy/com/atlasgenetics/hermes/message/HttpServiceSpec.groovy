@@ -1,10 +1,11 @@
 package com.atlasgenetics.hermes.message
 
 import com.atlasgenetics.hermes.response.HermesResponseWrapper
-import com.stehno.ersatz.ContentType
+import com.stehno.ersatz.ContentType as ErsatzContentType
 import com.stehno.ersatz.Decoders
 import com.stehno.ersatz.ErsatzServer
 import grails.testing.services.ServiceUnitTest
+import groovyx.net.http.ContentType
 import groovyx.net.http.Method
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
@@ -17,6 +18,7 @@ class HttpServiceSpec extends Specification implements ServiceUnitTest<HttpServi
     static final String QUERY_KEY = "query"
     static final String QUERY_VAL = "querydata"
     static final Map BODY = [key: "value"]
+    static final String RESPONSE_BODY_JSON = '{"foo":"bar"}'
 
     void "test makeRequest - GET"() {
         given: "a mock server expecting a GET request"
@@ -28,6 +30,7 @@ class HttpServiceSpec extends Specification implements ServiceUnitTest<HttpServi
 
                 responder {
                     code HttpStatus.OK.value()
+                    content RESPONSE_BODY_JSON, ErsatzContentType.APPLICATION_JSON.value
                 }
 
                 called 1
@@ -35,27 +38,35 @@ class HttpServiceSpec extends Specification implements ServiceUnitTest<HttpServi
         }
 
         and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(Method.GET, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(Method.GET, mock.httpUrl, ContentType.JSON)
 
         when: "the request is sent"
         HermesResponseWrapper response = service.makeRequest(messageData)
 
         then: "the request succeeds"
         response.statusCode == HttpStatus.OK.value()
+
+        and: "all the response data is populated as expected"
+        response.headers
+        response.payload
+        response.payload.foo == 'bar'
+
+        and: "the mock server was called as expected"
+        mock.verify()
     }
 
     void "test makeRequest - PUT"() {
-        given: "a mock server expecting a PUT request"
+        given: "a mock server expecting a POST request"
         ErsatzServer mock = newErsatzServer()
         mock.expectations {
             put(TEST_URI) {
                 query QUERY_KEY, QUERY_VAL
                 header HEADER_KEY, HEADER_VAL
-                body BODY, ContentType.APPLICATION_JSON.value
+                body BODY, ErsatzContentType.APPLICATION_JSON.value
 
                 responder {
                     code HttpStatus.OK.value()
-                    content('{"foo":"bar"}', ContentType.APPLICATION_JSON.value)
+                    content RESPONSE_BODY_JSON, ErsatzContentType.APPLICATION_JSON.value
                 }
 
                 called 1
@@ -63,95 +74,24 @@ class HttpServiceSpec extends Specification implements ServiceUnitTest<HttpServi
         }
 
         and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(Method.PUT, mock.httpUrl)
+        MessageCommand messageData = buildMessageData(Method.PUT, mock.httpUrl, ContentType.JSON)
 
         when: "the request is sent"
         HermesResponseWrapper response = service.makeRequest(messageData)
 
         then: "the request succeeds"
         response.statusCode == HttpStatus.OK.value()
+
+        and: "all the response data is populated as expected"
+        response.headers
+        response.payload
+        response.payload.foo == 'bar'
+
+        and: "the mock server was called as expected"
+        mock.verify()
     }
 
-    void "test makeRequest - POST"() {
-        given: "a mock server expecting a POST request"
-        ErsatzServer mock = newErsatzServer()
-        mock.expectations {
-            post(TEST_URI) {
-                query QUERY_KEY, QUERY_VAL
-                header HEADER_KEY, HEADER_VAL
-                body BODY, ContentType.APPLICATION_JSON.value
-
-                responder {
-                    code HttpStatus.OK.value()
-                }
-
-                called 1
-            }
-        }
-
-        and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(Method.POST, mock.httpUrl)
-
-        when: "the request is sent"
-        HermesResponseWrapper response = service.makeRequest(messageData)
-
-        then: "the request succeeds"
-        response.statusCode == HttpStatus.OK.value()
-    }
-
-    void "test makeRequest - DELETE"() {
-        given: "a mock server expecting a DELETE request"
-        ErsatzServer mock = newErsatzServer()
-        mock.expectations {
-            delete(TEST_URI) {
-                query(QUERY_KEY, QUERY_VAL)
-                header(HEADER_KEY, HEADER_VAL)
-
-                responder {
-                    code HttpStatus.OK.value()
-                }
-
-                called 1
-            }
-        }
-
-        and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(Method.DELETE, mock.httpUrl)
-
-        when: "the request is sent"
-        HermesResponseWrapper response = service.makeRequest(messageData)
-
-        then: "the request succeeds"
-        response.statusCode == HttpStatus.OK.value()
-    }
-
-    void "test makeRequest - HEAD"() {
-        given: "a mock server expecting a HEAD request"
-        ErsatzServer mock = newErsatzServer()
-        mock.expectations {
-            head(TEST_URI) {
-                query(QUERY_KEY, QUERY_VAL)
-                header(HEADER_KEY, HEADER_VAL)
-
-                responder {
-                    code HttpStatus.OK.value()
-                }
-
-                called 1
-            }
-        }
-
-        and: "a message messageData object"
-        MessageCommand messageData = buildMessageData(Method.HEAD, mock.httpUrl)
-
-        when: "the request is sent"
-        HermesResponseWrapper response = service.makeRequest(messageData)
-
-        then: "the request succeeds"
-        response.statusCode == HttpStatus.OK.value()
-    }
-
-    private static MessageCommand buildMessageData(Method method, String baseUrl) {
+    private static MessageCommand buildMessageData(Method method, String baseUrl, ContentType contentType) {
         def headers = [:]
         headers[HEADER_KEY] = HEADER_VAL
         def queryParams = [:]
@@ -160,7 +100,7 @@ class HttpServiceSpec extends Specification implements ServiceUnitTest<HttpServi
         MessageCommand command = new MessageCommand()
         command.url = "$baseUrl$TEST_URI"
         command.headers = headers
-        command.contentType = groovyx.net.http.ContentType.JSON
+        command.contentType = contentType
         command.queryParams = queryParams
         if (method in [Method.PUT, Method.POST]) command.body = BODY
         command.httpMethod = method
@@ -174,7 +114,7 @@ class HttpServiceSpec extends Specification implements ServiceUnitTest<HttpServi
      */
     private static ErsatzServer newErsatzServer() {
         ErsatzServer mock = new ErsatzServer()
-        mock.decoder(ContentType.APPLICATION_JSON.value, Decoders.parseJson)
+        mock.decoder(ErsatzContentType.APPLICATION_JSON.value, Decoders.parseJson)
         return mock
     }
 }

@@ -61,4 +61,23 @@ class HttpStatusUtilsSpec extends Specification {
         HttpStatus.PERMANENT_REDIRECT.value()    || false
         HttpStatusUtils.CONNECT_EXCEPTION_CODE   || false
     }
+
+    @Unroll("test isRedirect with status #statusCode and expected value #expected")
+    void "test isRedirect"() {
+        when: "we check if a code is a redirect"
+        boolean out = HttpStatusUtils.isRedirectCode(statusCode)
+
+        then: "the result is as expected"
+        out == expected
+
+        where:
+        statusCode                               || expected
+        HttpStatus.OK.value()                    || false
+        HttpStatus.BAD_REQUEST.value()           || false
+        HttpStatus.REQUEST_TIMEOUT.value()       || false
+        HttpStatus.INTERNAL_SERVER_ERROR.value() || false
+        HttpStatus.NOT_FOUND.value()             || false
+        HttpStatus.PERMANENT_REDIRECT.value()    || true
+        HttpStatusUtils.CONNECT_EXCEPTION_CODE   || false
+    }
 }

@@ -1,6 +1,6 @@
 package com.atlasgenetics.hermes.message
 
-import com.atlasgenetics.hermes.utils.HttpUtils
+import com.atlasgenetics.hermes.utils.HttpStatusUtils
 import grails.gorm.transactions.Transactional
 
 /**
@@ -41,7 +41,7 @@ class FailedMessageManagerService {
     Set<FailedMessage> gatherFailedMessagesForRetry() {
         Set<FailedMessage> messages = FailedMessage.createCriteria().listDistinct {
             or {
-                eq('statusCode', HttpUtils.CONNECT_EXCEPTION_CODE)
+                eq('statusCode', HttpStatusUtils.CONNECT_EXCEPTION_CODE)
                 ge('statusCode', 500)
             }
         } as Set<FailedMessage>

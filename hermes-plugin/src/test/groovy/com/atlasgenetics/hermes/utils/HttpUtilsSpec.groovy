@@ -22,7 +22,7 @@ class HttpUtilsSpec extends Specification {
     @Unroll("test isInvalid with status #statusCode and expected value #expected")
     void "test isInvalid"() {
         when: "we check a code for validity"
-        boolean out = HttpUtils.isInvalidMessageCode(statusCode)
+        boolean out = HttpStatusUtils.isInvalidMessageCode(statusCode)
 
         then: "the result is as expected"
         out == expected
@@ -34,13 +34,13 @@ class HttpUtilsSpec extends Specification {
         HttpStatus.INTERNAL_SERVER_ERROR.value() || false
         HttpStatus.NOT_FOUND.value()             || true
         HttpStatus.PERMANENT_REDIRECT.value()    || true
-        HttpUtils.CONNECT_EXCEPTION_CODE         || false
+        HttpStatusUtils.CONNECT_EXCEPTION_CODE   || false
     }
 
     @Unroll("test isFailed with status #statusCode and expected value #expected")
     void "test isFailed"() {
         when: "we check if a code is a failure"
-        boolean out = HttpUtils.isFailureCode(statusCode)
+        boolean out = HttpStatusUtils.isFailureCode(statusCode)
 
         then: "the result is as expected"
         out == expected
@@ -53,13 +53,13 @@ class HttpUtilsSpec extends Specification {
         HttpStatus.INTERNAL_SERVER_ERROR.value() || true
         HttpStatus.NOT_FOUND.value()             || true
         HttpStatus.PERMANENT_REDIRECT.value()    || true
-        HttpUtils.CONNECT_EXCEPTION_CODE         || true
+        HttpStatusUtils.CONNECT_EXCEPTION_CODE   || true
     }
 
     @Unroll("test isSucceeded with status #statusCode and expected value #expected")
     void "test isSucceeded"() {
         when: "we check if a code is a success"
-        boolean out = HttpUtils.isSuccessCode(statusCode)
+        boolean out = HttpStatusUtils.isSuccessCode(statusCode)
 
         then: "the result is as expected"
         out == expected
@@ -72,7 +72,7 @@ class HttpUtilsSpec extends Specification {
         HttpStatus.INTERNAL_SERVER_ERROR.value() || false
         HttpStatus.NOT_FOUND.value()             || false
         HttpStatus.PERMANENT_REDIRECT.value()    || false
-        HttpUtils.CONNECT_EXCEPTION_CODE         || false
+        HttpStatusUtils.CONNECT_EXCEPTION_CODE   || false
     }
 
     void "test makeRequest - GET"() {
@@ -95,7 +95,7 @@ class HttpUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.GET, mock.httpUrl)
 
         when: "the request is sent"
-        int status = HttpUtils.attemptInitialSend(messageData)
+        int status = HttpStatusUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()
@@ -122,7 +122,7 @@ class HttpUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.PUT, mock.httpUrl)
 
         when: "the request is sent"
-        int status = HttpUtils.attemptInitialSend(messageData)
+        int status = HttpStatusUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()
@@ -149,7 +149,7 @@ class HttpUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.POST, mock.httpUrl)
 
         when: "the request is sent"
-        int status = HttpUtils.attemptInitialSend(messageData)
+        int status = HttpStatusUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()
@@ -175,7 +175,7 @@ class HttpUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.DELETE, mock.httpUrl)
 
         when: "the request is sent"
-        int status = HttpUtils.attemptInitialSend(messageData)
+        int status = HttpStatusUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()
@@ -201,7 +201,7 @@ class HttpUtilsSpec extends Specification {
         MessageCommand messageData = buildMessageData(Method.HEAD, mock.httpUrl)
 
         when: "the request is sent"
-        int status = HttpUtils.attemptInitialSend(messageData)
+        int status = HttpStatusUtils.attemptInitialSend(messageData)
 
         then: "the request succeeds"
         status == HttpStatus.OK.value()

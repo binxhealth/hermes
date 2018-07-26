@@ -1,6 +1,6 @@
 package com.atlasgenetics.hermes.response
 
-import com.atlasgenetics.hermes.utils.HttpUtils
+import com.atlasgenetics.hermes.utils.HttpStatusUtils
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -10,18 +10,18 @@ class HttpResponse {
     Map<String, Object> body
 
     boolean isSucceeded() {
-        HttpUtils.isSuccessCode(statusCode)
+        HttpStatusUtils.isSuccessCode(statusCode)
     }
 
     boolean isFailed() {
-       HttpUtils.isFailureCode(statusCode)
+       HttpStatusUtils.isFailureCode(statusCode)
     }
 
     boolean isInvalid() {
-        HttpUtils.isInvalidMessageCode(statusCode)
+        HttpStatusUtils.isInvalidMessageCode(statusCode)
     }
 
     boolean getIsRedirect() {
-        HttpUtils.isRedirectCode(statusCode)
+        HttpStatusUtils.isRedirectCode(statusCode)
     }
 }

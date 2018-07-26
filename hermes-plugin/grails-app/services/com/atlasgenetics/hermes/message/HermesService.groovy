@@ -17,7 +17,7 @@ import org.springframework.context.MessageSource
  *
  * Hermes will catch ConnectExceptions thrown by RestBuilder and treat the messages that triggered the exception the
  * same as any message that fails with a 5xx status.  Messages will be saved to the database with a special status code
- * (see {@link com.atlasgenetics.hermes.utils.HttpUtils}), and will be eligible for retry at a later date.
+ * (see {@link com.atlasgenetics.hermes.utils.HttpStatusUtils}), and will be eligible for retry at a later date.
  *
  * Please note that Hermes DOES NOT support multipart forms.
  *

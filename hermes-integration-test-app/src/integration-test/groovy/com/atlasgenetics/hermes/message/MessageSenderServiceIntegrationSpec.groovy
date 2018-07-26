@@ -20,18 +20,18 @@ class MessageSenderServiceIntegrationSpec extends Specification {
     def httpService
     def grailsApplication
 
-    Integer originalRetryTimesValue
+    Integer originalMaxRetryAttemptsValue
 
     static final String TEST_URI = "/endpoint"
 
     def setup() {
-        originalRetryTimesValue = grailsApplication.config.getProperty('com.atlasgenetics.hermes.maxRetryAttempts',
+        originalMaxRetryAttemptsValue = grailsApplication.config.getProperty('com.atlasgenetics.hermes.maxRetryAttempts',
                 Integer, 5)
         httpService.init()
     }
 
     def cleanup() {
-        grailsApplication.config.com.atlasgenetics.hermes.maxRetryAttempts = originalRetryTimesValue
+        grailsApplication.config.com.atlasgenetics.hermes.maxRetryAttempts = originalMaxRetryAttemptsValue
         httpService.init()
     }
 

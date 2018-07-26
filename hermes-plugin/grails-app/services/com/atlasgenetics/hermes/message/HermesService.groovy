@@ -44,13 +44,17 @@ class HermesService {
      * @param url This can include the queryParams, or they can be included as a separate Map.  NOTE: If the queryParams
      *        are passed in as a Map, url will be put through a URL encoder as part of the queryParam encoding process
      * @param contentType
+     * @param metadata This is a Map that allows users to store specific data about a given HTTP request that they
+     *        require, but that Hermes does not, e.g. data required by a custom response handler.  Hermes will retain
+     *        the data and persist it in the event that the message fails, but will otherwise ignore it.
      * @param headers
      * @param queryParams
      * @param body
      * @return true if the message was sent successfully; false if it failed
      */
-    boolean makeRequest(Method httpMethod, String url, ContentType contentType, Map<String, Object> headers = null,
-                        Map<String, Object> queryParams = null, Map<String, Object> body = null) {
+    boolean makeRequest(Method httpMethod, String url, ContentType contentType, Map<String, Object> metadata = null,
+                        Map<String, Object> headers = null, Map<String, Object> queryParams = null,
+                        Map<String, Object> body = null) {
         MessageCommand messageCommand = new MessageCommand()
         messageCommand.httpMethod = httpMethod
         messageCommand.url = url
@@ -58,6 +62,7 @@ class HermesService {
         messageCommand.headers = headers
         messageCommand.queryParams = queryParams
         messageCommand.body = body
+        messageCommand.metadata = metadata
         return makeRequest(messageCommand)
     }
 

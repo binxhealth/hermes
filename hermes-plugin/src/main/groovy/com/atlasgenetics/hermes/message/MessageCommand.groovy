@@ -16,6 +16,7 @@ class MessageCommand implements Validateable {
     Map<String, Object> headers
     Map<String, Object> queryParams
     Map<String, Object> body
+    Map<String, Object> metadata
 
     static constraints = {
         url nullable: false, url: ['localhost:\\d*']
@@ -24,6 +25,7 @@ class MessageCommand implements Validateable {
         headers nullable: true
         queryParams nullable: true
         body nullable: true
+        metadata nullable: true
     }
 
     /**
@@ -37,7 +39,8 @@ class MessageCommand implements Validateable {
                 contentType: contentType,
                 headers: headers,
                 queryParams: queryParams,
-                body: body
+                body: body,
+                metadata: metadata
         ]
     }
 

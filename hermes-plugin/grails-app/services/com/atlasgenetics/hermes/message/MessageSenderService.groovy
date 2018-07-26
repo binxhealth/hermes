@@ -1,7 +1,7 @@
 package com.atlasgenetics.hermes.message
 
 import com.atlasgenetics.hermes.response.HttpResponseWrapper
-import com.atlasgenetics.hermes.response.ResponseHandler
+import com.atlasgenetics.hermes.response.HermesResponseHandler
 import com.atlasgenetics.hermes.utils.HttpUtils
 import grails.core.GrailsApplication
 import grails.gorm.transactions.Transactional
@@ -18,7 +18,7 @@ class MessageSenderService {
 
     FailedMessageManagerService failedMessageManagerService
     GrailsApplication grailsApplication
-    ResponseHandler responseHandler
+    HermesResponseHandler hermesResponseHandler
 
     private Long retryWaitTime
     private Integer maxRetryAttempts
@@ -38,10 +38,10 @@ class MessageSenderService {
                 return retryFailedMessage(failedMessage, message)
             }
             // Custom response handling
-            responseHandler.handleResponse(response, message, failedMessage)
+            hermesResponseHandler.handleFailureResponse(response, message, failedMessage)
         } else {
             // Custom response handling
-            responseHandler.handleResponse(response, message)
+            hermesResponseHandler.handleSuccessResponse(response, message)
         }
         return response.succeeded
     }
@@ -54,11 +54,11 @@ class MessageSenderService {
             if (response.succeeded) {
                 failedMessageManagerService.purgeMessage(message)
                 // Custom response handling
-                responseHandler.handleResponse(response, messageCommand)
+                hermesResponseHandler.handleSuccessResponse(response, messageCommand)
             } else {
                 failedMessageManagerService.completeFailedRetryProcess(message, response.statusCode)
                 // Custom response handling
-                responseHandler.handleResponse(response, messageCommand, message)
+                hermesResponseHandler.handleFailureResponse(response, messageCommand, message)
             }
             return response.succeeded
         } else {

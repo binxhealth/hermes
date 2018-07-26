@@ -1,5 +1,6 @@
 package com.atlasgenetics.hermes.message
 
+import com.atlasgenetics.hermes.response.HermesResponseWrapper
 import com.stehno.ersatz.ContentType as ErsatzContentType
 import com.stehno.ersatz.ErsatzServer
 import grails.testing.mixin.integration.Integration
@@ -17,8 +18,7 @@ import spock.lang.Specification
 class HermesServiceFunctionalSpec extends Specification {
 
     def hermesService
-    def grailsApplication
-    def messageSenderService
+    def httpService
 
     static final String QUERY_PARAM_KEY = "q"
     static final String QUERY_PARAM_VAL = "query"
@@ -26,9 +26,10 @@ class HermesServiceFunctionalSpec extends Specification {
     static final Map TEST_BODY = [foo: "bar"]
     static final String TEST_HEADER_KEY = "Header"
     static final String TEST_HEADER_VAL = "Data"
+    static final String RESPONSE_BODY_JSON = '{"foo":"bar"}'
 
     def setup() {
-        messageSenderService.init()
+        httpService.init()
     }
 
     void "test successful message - verify GET e2e"() {
@@ -40,6 +41,7 @@ class HermesServiceFunctionalSpec extends Specification {
                 query(QUERY_PARAM_KEY, QUERY_PARAM_VAL)
                 responder {
                     code HttpStatus.OK.value()
+                    content RESPONSE_BODY_JSON, ErsatzContentType.APPLICATION_JSON.value
                 }
 
                 called 1
@@ -54,15 +56,21 @@ class HermesServiceFunctionalSpec extends Specification {
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
 
         when: "we send the message"
-        boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(Method.GET, "$baseUrl$TEST_URI", ContentType.JSON, headers,
-                    queryParams)
+        HermesResponseWrapper response = FailedMessage.withSession { session ->
+            HermesResponseWrapper out = hermesService.makeRequest(Method.GET, "$baseUrl$TEST_URI", ContentType.JSON,
+                    null, headers, queryParams)
             session.flush()
             return out
         }
 
         then: "it succeeds"
-        success
+        response.succeeded
+
+        and: "the response data is populated as expected"
+        response.headers
+        response.payload
+        response.payload.foo == 'bar'
+        !response.failedMessageId
 
         and: "the mock server was called as expected"
         mock.verify()
@@ -86,6 +94,7 @@ class HermesServiceFunctionalSpec extends Specification {
                 body(TEST_BODY, ErsatzContentType.APPLICATION_JSON.value)
                 responder {
                     code HttpStatus.OK.value()
+                    content RESPONSE_BODY_JSON, ErsatzContentType.APPLICATION_JSON.value
                 }
 
                 called 1
@@ -100,151 +109,21 @@ class HermesServiceFunctionalSpec extends Specification {
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
 
         when: "we send the message"
-        boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(Method.PUT, "$baseUrl$TEST_URI", ContentType.JSON, headers,
-                    queryParams, TEST_BODY)
+        HermesResponseWrapper response = FailedMessage.withSession { session ->
+            HermesResponseWrapper out = hermesService.makeRequest(Method.PUT, "$baseUrl$TEST_URI", ContentType.JSON,
+                    null, headers, queryParams, TEST_BODY)
             session.flush()
             return out
         }
 
         then: "it succeeds"
-        success
+        response.succeeded
 
-        and: "the mock server was called as expected"
-        mock.verify()
-
-        and: "there is no FailedMessage object in the database for the message"
-        def results = FailedMessage.withSession {
-            FailedMessage.withCriteria {
-                pgJsonHasFieldValue 'messageData', 'baseUrl', baseUrl
-            }
-        }
-        !results
-    }
-
-    void "test successful message - verify POST e2e"() {
-        given: "a mock server expecting the request we want to make"
-        ErsatzServer mock = TestUtils.newErsatzServer()
-        mock.expectations {
-            post(TEST_URI) {
-                header(TEST_HEADER_KEY, TEST_HEADER_VAL)
-                query(QUERY_PARAM_KEY, QUERY_PARAM_VAL)
-                body(TEST_BODY, ErsatzContentType.APPLICATION_JSON.value)
-                responder {
-                    code HttpStatus.OK.value()
-                }
-
-                called 1
-            }
-        }
-
-        and: "the appropriate message data"
-        String baseUrl = mock.getHttpUrl()
-        Map headers = [:]
-        headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
-        Map queryParams = [:]
-        queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-
-        when: "we send the message"
-        boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(Method.POST, "$baseUrl$TEST_URI", ContentType.JSON, headers,
-                    queryParams, TEST_BODY)
-            session.flush()
-            return out
-        }
-
-        then: "it succeeds"
-        success
-
-        and: "the mock server was called as expected"
-        mock.verify()
-
-        and: "there is no FailedMessage object in the database for the message"
-        def results = FailedMessage.withSession {
-            FailedMessage.withCriteria {
-                pgJsonHasFieldValue 'messageData', 'baseUrl', baseUrl
-            }
-        }
-        !results
-    }
-
-    void "test successful message - verify HEAD e2e"() {
-        given: "a mock server expecting the request we want to make"
-        ErsatzServer mock = TestUtils.newErsatzServer()
-        mock.expectations {
-            head(TEST_URI) {
-                header(TEST_HEADER_KEY, TEST_HEADER_VAL)
-                query(QUERY_PARAM_KEY, QUERY_PARAM_VAL)
-                responder {
-                    code HttpStatus.OK.value()
-                }
-
-                called 1
-            }
-        }
-
-        and: "the appropriate message data"
-        String baseUrl = mock.getHttpUrl()
-        Map headers = [:]
-        headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
-        Map queryParams = [:]
-        queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-
-        when: "we send the message"
-        boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(Method.HEAD, "$baseUrl$TEST_URI", ContentType.JSON, headers,
-                    queryParams)
-            session.flush()
-            return out
-        }
-
-        then: "it succeeds"
-        success
-
-        and: "the mock server was called as expected"
-        mock.verify()
-
-        and: "there is no FailedMessage object in the database for the message"
-        def results = FailedMessage.withSession {
-            FailedMessage.withCriteria {
-                pgJsonHasFieldValue 'messageData', 'baseUrl', baseUrl
-            }
-        }
-        !results
-    }
-
-    void "test successful message - verify DELETE e2e"() {
-        given: "a mock server expecting the request we want to make"
-        ErsatzServer mock = TestUtils.newErsatzServer()
-        mock.expectations {
-            delete(TEST_URI) {
-                header(TEST_HEADER_KEY, TEST_HEADER_VAL)
-                query(QUERY_PARAM_KEY, QUERY_PARAM_VAL)
-                responder {
-                    code HttpStatus.OK.value()
-                }
-
-                called 1
-            }
-        }
-
-        and: "the appropriate message data"
-        String baseUrl = mock.getHttpUrl()
-        Map headers = [:]
-        headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
-        Map queryParams = [:]
-        queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
-
-        when: "we send the message"
-        boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(Method.DELETE, "$baseUrl$TEST_URI", ContentType.JSON, headers,
-                    queryParams)
-            session.flush()
-            return out
-        }
-
-        then: "it succeeds"
-        success
+        and: "the response data is populated as expected"
+        response.headers
+        response.payload
+        response.payload.foo == 'bar'
+        !response.failedMessageId
 
         and: "the mock server was called as expected"
         mock.verify()
@@ -267,6 +146,7 @@ class HermesServiceFunctionalSpec extends Specification {
                 query(QUERY_PARAM_KEY, QUERY_PARAM_VAL)
                 responder {
                     code HttpStatus.INTERNAL_SERVER_ERROR.value()
+                    content RESPONSE_BODY_JSON, ErsatzContentType.APPLICATION_JSON.value
                 }
 
                 called 6
@@ -281,15 +161,21 @@ class HermesServiceFunctionalSpec extends Specification {
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
 
         when: "we send the message"
-        boolean success = FailedMessage.withSession { session ->
-            boolean out = hermesService.makeRequest(Method.GET, "$baseUrl$TEST_URI", ContentType.JSON, headers,
-                    queryParams)
+        HermesResponseWrapper response = FailedMessage.withSession { session ->
+            HermesResponseWrapper out = hermesService.makeRequest(Method.GET, "$baseUrl$TEST_URI", ContentType.JSON,
+                    null, headers, queryParams)
             session.flush()
             return out
         }
 
         then: "it fails"
-        !success
+        response.failed
+
+        and: "the response data is populated as expected"
+        response.headers
+        response.payload
+        response.payload.foo == 'bar'
+        response.failedMessageId
 
         and: "the mock server was called as expected"
         mock.verify()
@@ -305,6 +191,7 @@ class HermesServiceFunctionalSpec extends Specification {
         def msg = results.first()
         msg
         msg.statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()
+        msg.id == response.failedMessageId
     }
 
 }

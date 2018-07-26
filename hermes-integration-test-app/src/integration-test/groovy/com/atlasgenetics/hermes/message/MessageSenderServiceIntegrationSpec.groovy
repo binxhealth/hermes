@@ -31,7 +31,7 @@ class MessageSenderServiceIntegrationSpec extends Specification {
     }
 
     def cleanup() {
-        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = originalRetryTimesValue
+        grailsApplication.config.com.atlasgenetics.hermes.maxRetryAttempts = originalRetryTimesValue
         httpService.init()
     }
 

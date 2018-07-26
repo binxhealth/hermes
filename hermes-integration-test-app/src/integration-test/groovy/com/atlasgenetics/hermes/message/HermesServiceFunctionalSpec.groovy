@@ -143,7 +143,7 @@ class HermesServiceFunctionalSpec extends Specification {
         mock.expectations {
             get(TEST_URI) {
                 header(TEST_HEADER_KEY, TEST_HEADER_VAL)
-                //query(QUERY_PARAM_KEY, QUERY_PARAM_VAL)
+                query(QUERY_PARAM_KEY, QUERY_PARAM_VAL)
                 responder {
                     code HttpStatus.INTERNAL_SERVER_ERROR.value()
                     content RESPONSE_BODY_JSON, ErsatzContentType.APPLICATION_JSON.value
@@ -163,7 +163,7 @@ class HermesServiceFunctionalSpec extends Specification {
         when: "we send the message"
         HermesResponseWrapper response = FailedMessage.withSession { session ->
             HermesResponseWrapper out = hermesService.makeRequest(Method.GET, "$baseUrl$TEST_URI", ContentType.JSON,
-                    null, headers)
+                    null, headers, queryParams)
             session.flush()
             return out
         }

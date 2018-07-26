@@ -55,10 +55,11 @@ class HermesServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
+        String url = "$baseUrl$TEST_URI"
 
         when: "we send the message"
         HermesResponseWrapper response = FailedMessage.withSession { session ->
-            HermesResponseWrapper out = hermesService.makeRequest(Method.GET, "$baseUrl$TEST_URI", ContentType.JSON,
+            HermesResponseWrapper out = hermesService.makeRequest(Method.GET, url, ContentType.JSON,
                     null, headers, queryParams)
             session.flush()
             return out
@@ -79,7 +80,7 @@ class HermesServiceFunctionalSpec extends Specification {
         and: "there is no FailedMessage object in the database for the message"
         def results = FailedMessage.withSession {
             FailedMessage.withCriteria {
-                pgJsonHasFieldValue 'messageData', 'baseUrl', baseUrl
+                pgJsonHasFieldValue 'messageData', 'url', url
             }
         }
         !results
@@ -108,10 +109,11 @@ class HermesServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
+        String url = "$baseUrl$TEST_URI"
 
         when: "we send the message"
         HermesResponseWrapper response = FailedMessage.withSession { session ->
-            HermesResponseWrapper out = hermesService.makeRequest(Method.PUT, "$baseUrl$TEST_URI", ContentType.JSON,
+            HermesResponseWrapper out = hermesService.makeRequest(Method.PUT, url, ContentType.JSON,
                     null, headers, queryParams, TEST_BODY)
             session.flush()
             return out
@@ -132,13 +134,13 @@ class HermesServiceFunctionalSpec extends Specification {
         and: "there is no FailedMessage object in the database for the message"
         def results = FailedMessage.withSession {
             FailedMessage.withCriteria {
-                pgJsonHasFieldValue 'messageData', 'baseUrl', baseUrl
+                pgJsonHasFieldValue 'messageData', 'url', url
             }
         }
         !results
     }
 
-    void "test failed message - verify e2e"() {
+    void "test failed message - 500 - verify e2e"() {
         given: "a mock server expecting the request we want to make"
         ErsatzServer mock = TestUtils.newErsatzServer()
         mock.expectations {
@@ -160,10 +162,11 @@ class HermesServiceFunctionalSpec extends Specification {
         headers[TEST_HEADER_KEY] = TEST_HEADER_VAL
         Map queryParams = [:]
         queryParams[QUERY_PARAM_KEY] = QUERY_PARAM_VAL
+        String url = "$baseUrl$TEST_URI"
 
         when: "we send the message"
         HermesResponseWrapper response = FailedMessage.withSession { session ->
-            HermesResponseWrapper out = hermesService.makeRequest(Method.GET, "$baseUrl$TEST_URI", ContentType.JSON,
+            HermesResponseWrapper out = hermesService.makeRequest(Method.GET, url, ContentType.JSON,
                     null, headers, queryParams)
             session.flush()
             return out
@@ -182,59 +185,40 @@ class HermesServiceFunctionalSpec extends Specification {
         mock.verify()
 
         and: "a FailedMessage was created in the database"
-        def results = FailedMessage.withSession {
-            FailedMessage.withCriteria {
-                pgJsonHasFieldValue 'messageData', 'url', "$baseUrl$TEST_URI"
-            }
+        FailedMessage msg = FailedMessage.withSession {
+            FailedMessage.get(response.failedMessageId)
         }
-        results
-        results.size() == 1
-        def msg = results.first()
         msg
         msg.statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()
-        msg.id == response.failedMessageId
+        msg.messageData.url == "$baseUrl$TEST_URI"
     }
 
-    void "trigger a connect exception"() {
-        given: "request data"
-        String url = 'http://localhost:2345'
+    void "Test failed message - Connection Refused error - verify e2e"() {
+        given: "A stopped server"
+        ErsatzServer mock = TestUtils.newErsatzServer()
+        mock.start()
+        String url = mock.httpUrl
+        mock.stop()
 
-        when: "we try to send a request"
+        when: "we try to send a request to that server"
         HermesResponseWrapper response = FailedMessage.withSession { session ->
             HermesResponseWrapper out = hermesService.makeRequest(Method.GET, url, ContentType.JSON)
             session.flush()
             return out
         }
 
-        then: "it fails"
+        then: "it fails with an IOException"
         response
         response.failed
         response.statusCode == HttpStatusUtils.CONNECTION_FAILURE_CODE
-    }
 
-    void "trigger a request timeout"() {
-        given: "an ersatz server that won't respond"
-        ErsatzServer mock = TestUtils.newErsatzServer()
-        mock.expectations {
-            get(TEST_URI) {
-                responder {
-                    code HttpStatus.OK.value()
-                }
-            }
+        and: "a FailedMessage was created in the database"
+        FailedMessage message = FailedMessage.withSession {
+            FailedMessage.get(response.failedMessageId)
         }
-
-        when: "we try to hit it with a request"
-        HermesResponseWrapper response = FailedMessage.withSession { session ->
-            HermesResponseWrapper out = hermesService.makeRequest(Method.GET, "${mock.httpUrl}$TEST_URI",
-                    ContentType.JSON)
-            session.flush()
-            return out
-        }
-
-        then: "it fails"
-        response
-        response.failed
-        response.statusCode == HttpStatusUtils.CONNECTION_FAILURE_CODE
+        message
+        message.statusCode == response.statusCode
+        message.messageData.url == url
     }
 
 }

@@ -25,7 +25,7 @@ class FailedMessageManagerServiceIntegrationSpec extends Specification {
 
         FailedMessage connectException = new FailedMessage()
         connectException.messageData = [foo: 'bar']
-        connectException.statusCode = HttpStatusUtils.CONNECT_EXCEPTION_CODE
+        connectException.statusCode = HttpStatusUtils.CONNECTION_FAILURE_CODE
         connectException.save()
 
         FailedMessage invalid = new FailedMessage()

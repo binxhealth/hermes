@@ -10,21 +10,21 @@ package com.atlasgenetics.hermes.utils
  * - 5xx response codes are treated as failures, but the message itself is still regarded as valid and eligible for
  *   retry
  * - ConnectExceptions will be treated as 5xx errors for most intents and purposes.  All messages failing with
- *   ConnectExceptions will be saved with status code {@link this.CONNECT_EXCEPTION_CODE} and are eligible for retry
+ *   ConnectExceptions will be saved with status code {@link this.CONNECTION_FAILURE_CODE} and are eligible for retry
  *
  * @author Maura Warner
  */
 class HttpStatusUtils {
 
     /**
-     * If a request fails with a ConnectException (e.g. a 'connection refused' error,) the status code for that
-     * message will be set to this value.  All messages saved to the database with this status code have failed
-     * with ConnectionExceptions and are eligible for retry.
+     * If a request fails with an IOException (use cases include 'connection refused' errors and request timeouts,)
+     * the status code for that message will be set to this value.  All messages saved to the database with this
+     * status code have failed with IOExceptions and are eligible for retry.
      */
-    static final int CONNECT_EXCEPTION_CODE = 0
+    static final int CONNECTION_FAILURE_CODE = 0
 
     static boolean isFailureCode(int statusCode) {
-        300 <= statusCode || statusCode == CONNECT_EXCEPTION_CODE
+        300 <= statusCode || statusCode == CONNECTION_FAILURE_CODE
     }
 
     static boolean isRedirectCode(int statusCode) {

@@ -1,6 +1,7 @@
 package com.atlasgenetics.hermes.message
 
 import com.atlasgenetics.hermes.response.HermesResponseWrapper
+import com.atlasgenetics.hermes.utils.HttpStatusUtils
 import com.stehno.ersatz.ContentType as ErsatzContentType
 import com.stehno.ersatz.ErsatzServer
 import grails.testing.mixin.integration.Integration
@@ -192,6 +193,48 @@ class HermesServiceFunctionalSpec extends Specification {
         msg
         msg.statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()
         msg.id == response.failedMessageId
+    }
+
+    void "trigger a connect exception"() {
+        given: "request data"
+        String url = 'http://localhost:2345'
+
+        when: "we try to send a request"
+        HermesResponseWrapper response = FailedMessage.withSession { session ->
+            HermesResponseWrapper out = hermesService.makeRequest(Method.GET, url, ContentType.JSON)
+            session.flush()
+            return out
+        }
+
+        then: "it fails"
+        response
+        response.failed
+        response.statusCode == HttpStatusUtils.CONNECTION_FAILURE_CODE
+    }
+
+    void "trigger a request timeout"() {
+        given: "an ersatz server that won't respond"
+        ErsatzServer mock = TestUtils.newErsatzServer()
+        mock.expectations {
+            get(TEST_URI) {
+                responder {
+                    code HttpStatus.OK.value()
+                }
+            }
+        }
+
+        when: "we try to hit it with a request"
+        HermesResponseWrapper response = FailedMessage.withSession { session ->
+            HermesResponseWrapper out = hermesService.makeRequest(Method.GET, "${mock.httpUrl}$TEST_URI",
+                    ContentType.JSON)
+            session.flush()
+            return out
+        }
+
+        then: "it fails"
+        response
+        response.failed
+        response.statusCode == HttpStatusUtils.CONNECTION_FAILURE_CODE
     }
 
 }

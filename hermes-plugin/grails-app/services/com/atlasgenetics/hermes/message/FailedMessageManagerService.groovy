@@ -41,7 +41,7 @@ class FailedMessageManagerService {
     Set<FailedMessage> gatherFailedMessagesForRetry() {
         Set<FailedMessage> messages = FailedMessage.createCriteria().listDistinct {
             or {
-                eq('statusCode', HttpStatusUtils.CONNECT_EXCEPTION_CODE)
+                eq('statusCode', HttpStatusUtils.CONNECTION_FAILURE_CODE)
                 ge('statusCode', 500)
             }
         } as Set<FailedMessage>

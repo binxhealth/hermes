@@ -21,7 +21,7 @@ class HttpStatusUtilsSpec extends Specification {
         HttpStatus.INTERNAL_SERVER_ERROR.value() || false
         HttpStatus.NOT_FOUND.value()             || true
         HttpStatus.PERMANENT_REDIRECT.value()    || true
-        HttpStatusUtils.CONNECT_EXCEPTION_CODE   || false
+        HttpStatusUtils.CONNECTION_FAILURE_CODE  || false
     }
 
     @Unroll("test isFailed with status #statusCode and expected value #expected")
@@ -40,7 +40,7 @@ class HttpStatusUtilsSpec extends Specification {
         HttpStatus.INTERNAL_SERVER_ERROR.value() || true
         HttpStatus.NOT_FOUND.value()             || true
         HttpStatus.PERMANENT_REDIRECT.value()    || true
-        HttpStatusUtils.CONNECT_EXCEPTION_CODE   || true
+        HttpStatusUtils.CONNECTION_FAILURE_CODE  || true
     }
 
     @Unroll("test isSucceeded with status #statusCode and expected value #expected")
@@ -59,7 +59,7 @@ class HttpStatusUtilsSpec extends Specification {
         HttpStatus.INTERNAL_SERVER_ERROR.value() || false
         HttpStatus.NOT_FOUND.value()             || false
         HttpStatus.PERMANENT_REDIRECT.value()    || false
-        HttpStatusUtils.CONNECT_EXCEPTION_CODE   || false
+        HttpStatusUtils.CONNECTION_FAILURE_CODE  || false
     }
 
     @Unroll("test isRedirect with status #statusCode and expected value #expected")
@@ -78,6 +78,6 @@ class HttpStatusUtilsSpec extends Specification {
         HttpStatus.INTERNAL_SERVER_ERROR.value() || false
         HttpStatus.NOT_FOUND.value()             || false
         HttpStatus.PERMANENT_REDIRECT.value()    || true
-        HttpStatusUtils.CONNECT_EXCEPTION_CODE   || false
+        HttpStatusUtils.CONNECTION_FAILURE_CODE  || false
     }
 }

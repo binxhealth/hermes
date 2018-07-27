@@ -1,5 +1,6 @@
 package com.atlasgenetics.hermes.message
 
+import com.atlasgenetics.hermes.response.HermesResponseWrapper
 import com.stehno.ersatz.ErsatzServer
 import grails.testing.mixin.integration.Integration
 import groovyx.net.http.ContentType
@@ -16,20 +17,22 @@ import spock.lang.Specification
 class MessageSenderServiceIntegrationSpec extends Specification {
 
     def messageSenderService
+    def httpService
     def grailsApplication
 
-    Integer originalRetryTimesValue
+    Integer originalMaxRetryAttemptsValue
 
     static final String TEST_URI = "/endpoint"
 
     def setup() {
-        originalRetryTimesValue = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
-        messageSenderService.init()
+        originalMaxRetryAttemptsValue = grailsApplication.config.getProperty('com.atlasgenetics.hermes.maxRetryAttempts',
+                Integer, 5)
+        httpService.init()
     }
 
     def cleanup() {
-        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = originalRetryTimesValue
-        messageSenderService.init()
+        grailsApplication.config.com.atlasgenetics.hermes.maxRetryAttempts = originalMaxRetryAttemptsValue
+        httpService.init()
     }
 
     void "test send message - succeeds on first try"() {
@@ -52,10 +55,10 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         cmd.contentType = ContentType.JSON
 
         when: "we try to send the message"
-        boolean sent = messageSenderService.sendMessage(cmd)
+        HermesResponseWrapper response = messageSenderService.sendNewMessage(cmd)
 
         then: "it succeeds"
-        sent
+        response.succeeded
 
         and: "the mock server was called as expected"
         mock.verify()
@@ -84,10 +87,10 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         cmd.contentType = ContentType.JSON
 
         when: "we try to send the message"
-        boolean sent = messageSenderService.sendMessage(cmd)
+        HermesResponseWrapper response = messageSenderService.sendNewMessage(cmd)
 
         then: "it succeeds"
-        sent
+        response.succeeded
 
         and: "the mock server was called as expected"
         mock.verify()
@@ -114,14 +117,14 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         cmd.contentType = ContentType.JSON
 
         when: "we try to send the message"
-        boolean sent  = FailedMessage.withSession { session ->
-            boolean out = messageSenderService.sendMessage(cmd)
+        HermesResponseWrapper response = FailedMessage.withSession { session ->
+            HermesResponseWrapper out = messageSenderService.sendNewMessage(cmd)
             session.flush()
             return out
         }
 
         then: "it fails"
-        !sent
+        response.failed
 
         and: "the mock server was called as expected"
         mock.verify()
@@ -135,9 +138,10 @@ class MessageSenderServiceIntegrationSpec extends Specification {
             }
         }
         results
+        results.find { it.id == response.failedMessageId }
     }
 
-    void "test failed message - verify retryTimes config property"() {
+    void "test failed message - verify maxRetryAttempts config property"() {
         given: "a mock server expecting the message we want to send"
         ErsatzServer mock = TestUtils.newErsatzServer()
         mock.expectations {
@@ -157,11 +161,11 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         cmd.contentType = ContentType.JSON
 
         and: "the retryTimes configuration property set to override the default value"
-        grailsApplication.config.com.atlasgenetics.hermes.retryTimes = 10
-        messageSenderService.init()
+        grailsApplication.config.com.atlasgenetics.hermes.maxRetryAttempts = 10
+        httpService.init()
 
         when: "we try to send the failing message"
-        messageSenderService.sendMessage(cmd)
+        messageSenderService.sendNewMessage(cmd)
 
         then: "the mock server will be called the expected number of times, rather than the default"
         mock.verify()

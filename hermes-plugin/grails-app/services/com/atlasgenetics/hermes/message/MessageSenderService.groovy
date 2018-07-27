@@ -1,10 +1,7 @@
 package com.atlasgenetics.hermes.message
 
-import com.atlasgenetics.hermes.utils.RestUtils
-import grails.core.GrailsApplication
+import com.atlasgenetics.hermes.response.HermesResponseWrapper
 import grails.gorm.transactions.Transactional
-
-import javax.annotation.PostConstruct
 
 /**
  * This service orchestrates the sending of HTTP requests throughout the message send and retry process.
@@ -14,43 +11,36 @@ import javax.annotation.PostConstruct
 @Transactional
 class MessageSenderService {
 
-    FailedMessageManagerService failedMessageManagerService
-    GrailsApplication grailsApplication
+    def failedMessageManagerService
+    def httpService
 
-    private Long retryWaitTime
-    private Integer maxRetryTimes
-
-    @PostConstruct
-    void init() {
-        retryWaitTime = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryInterval', Long, 10000L)
-        maxRetryTimes =  grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryTimes', Integer, 5)
-    }
-
-    boolean sendMessage(MessageCommand message) {
-        int status = RestUtils.attemptInitialSend(message)
-        if (RestUtils.isFailureCode(status)) {
-            FailedMessage failedMessage = failedMessageManagerService.createFailedMessage(message, status)
-            sleep(retryWaitTime)
-            return retryFailedMessage(failedMessage, message)
-        }
-        return true
-    }
-
-    boolean retryFailedMessage(FailedMessage message, MessageCommand command = null) {
-        if (!command) {
-            command = new MessageCommand(message.messageData)
-        }
-        if (!message.invalid) {
-            int statusCode = RestUtils.retryMessage(command, maxRetryTimes, retryWaitTime, message.statusCode)
-            if (RestUtils.isSuccessCode(statusCode)) {
-                failedMessageManagerService.purgeMessage(message)
-                return true
+    HermesResponseWrapper sendNewMessage(MessageCommand message) {
+        HermesResponseWrapper response = httpService.makeRequest(message)
+        if (response.failed) {
+            FailedMessage failedMessage = failedMessageManagerService.createFailedMessage(message, response.statusCode)
+            if (!failedMessage.invalid) {
+                return retryFailedMessage(failedMessage, message)
             } else {
-                failedMessageManagerService.completeFailedRetryProcess(message, statusCode)
-                return false
+                response.failedMessageId = failedMessage.id
             }
+        }
+        return response
+    }
+
+    HermesResponseWrapper retryFailedMessage(FailedMessage message, MessageCommand messageCommand = null) {
+        if (!message.invalid) {
+            if (!messageCommand) messageCommand = new MessageCommand(message.messageData)
+            HermesResponseWrapper response = httpService.retryMessage(messageCommand, message.statusCode)
+            if (response.succeeded) {
+                failedMessageManagerService.purgeMessage(message)
+            } else {
+                failedMessageManagerService.completeFailedRetryProcess(message, response.statusCode)
+                response.failedMessageId = message.id
+            }
+            return response
         } else {
-            return false
+            throw new IllegalArgumentException("FailedMessage with HTTP status code ${message.statusCode} is invalid" +
+                    " and not eligible for retry")
         }
     }
 

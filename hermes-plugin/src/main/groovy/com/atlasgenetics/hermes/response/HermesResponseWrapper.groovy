@@ -12,10 +12,7 @@ class HermesResponseWrapper {
     Long failedMessageId
 
     void setHeaders(Header[] allHeaders) {
-        headers = [:]
-        allHeaders.toList().each {
-            headers[it.name] = it.value
-        }
+        headers = allHeaders.collectEntries { [it.name, it.value] }
     }
 
     boolean isSucceeded() {

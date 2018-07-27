@@ -56,7 +56,10 @@ class HttpService {
             }
             return responseWrapper
         } catch (IOException e) {
-            return new HermesResponseWrapper(statusCode: HttpStatusUtils.CONNECTION_FAILURE_CODE)
+            return new HermesResponseWrapper(
+                    statusCode: HttpStatusUtils.CONNECTION_FAILURE_CODE,
+                    payload: e
+            )
         }
     }
 

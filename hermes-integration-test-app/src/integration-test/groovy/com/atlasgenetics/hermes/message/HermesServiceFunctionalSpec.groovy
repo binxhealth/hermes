@@ -211,6 +211,8 @@ class HermesServiceFunctionalSpec extends Specification {
         response
         response.failed
         response.statusCode == HttpStatusUtils.CONNECTION_FAILURE_CODE
+        response.payload
+        response.payload instanceof IOException
 
         and: "a FailedMessage was created in the database"
         FailedMessage message = FailedMessage.withSession {

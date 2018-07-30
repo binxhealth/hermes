@@ -16,7 +16,7 @@ An HTTP messenger that sends REST requests to third party APIs with guaranteed o
     def profiles = ['web']
 
     // URL to the plugin's documentation
-    def documentation = "https://github.com/atlasgenetics/hermes/blob/master/hermes-plugin/README.md"
+    def documentation = "https://github.com/atlasgenetics/hermes/blob/master/README.md"
 
     // Details of company behind the plugin (if there is one)
     def organization = [ name: "Atlas Genetics", url: "http://atlasgenetics.com" ]

@@ -52,9 +52,9 @@ class HermesService {
      * @param body
      * @return the last response received while attempting to send the message
      */
-    HermesResponseWrapper makeRequest(Method httpMethod, String url, ContentType contentType, Map<String, Object> metadata = null,
+    HermesResponseWrapper makeRequest(Method httpMethod, String url, ContentType contentType, def metadata = null,
                                       Map<String, Object> headers = null, Map<String, Object> queryParams = null,
-                                      Map<String, Object> body = null) {
+                                      def body = null) {
         MessageCommand messageCommand = new MessageCommand()
         messageCommand.httpMethod = httpMethod
         messageCommand.url = url

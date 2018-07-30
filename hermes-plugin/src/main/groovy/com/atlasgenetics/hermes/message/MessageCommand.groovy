@@ -15,8 +15,8 @@ class MessageCommand implements Validateable {
     ContentType contentType
     Map<String, Object> headers
     Map<String, Object> queryParams
-    Map<String, Object> body
-    Map<String, Object> metadata
+    def body
+    def metadata
 
     static constraints = {
         url nullable: false, url: ['localhost:\\d*']

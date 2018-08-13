@@ -11,7 +11,10 @@ buildTemplate(
     envVars: [
         envVar(key: 'DB_USER', value: 'atlas'),
         envVar(key: 'DB_PASS', value: 'atlas'),
-        envVar(key: 'DB_NAME', value: 'atlas')
+        envVar(key: 'DB_NAME', value: 'atlas'),
+        envVar(key: 'POSTGRES_DB', value: 'atlas'),
+        envVar(key: 'POSTGRES_USER', value: 'atlas'),
+        envVar(key: 'POSTGRES_PASSWORD', value: 'atlas')
     ]
 ) {
     try {

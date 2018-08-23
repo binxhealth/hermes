@@ -1,4 +1,4 @@
-@Library('github.com/atlasgenetics/inf-jenkins-gsl@master')
+@Library('gsl')
 def utils = new com.atlasgenetics.Utils()
 
 buildTemplate(

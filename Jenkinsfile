@@ -1,4 +1,4 @@
-@Library('gsl')
+@Library('gsl@andrewcann/add-image-spec-support')
 def utils = new com.atlasgenetics.Utils()
 
 buildTemplate(

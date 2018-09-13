@@ -6,7 +6,7 @@ buildTemplate(
     // JNLP and Utility automatically included
     containers: [
         containerGroovy(),
-        containerPostgres(image: '9.6')
+        containerPostgres(image: 'postgres:10.4')
     ],
     envVars: [
         envVar(key: 'DB_USER', value: 'atlas'),

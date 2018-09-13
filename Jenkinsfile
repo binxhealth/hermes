@@ -1,4 +1,4 @@
-@Library('gsl')
+@Library('gsl@andrewcann/add-image-spec-support')
 def utils = new com.atlasgenetics.Utils()
 
 buildTemplate(
@@ -6,7 +6,7 @@ buildTemplate(
     // JNLP and Utility automatically included
     containers: [
         containerGroovy(),
-        containerPostgres()
+        containerPostgres(image: '9.6')
     ],
     envVars: [
         envVar(key: 'DB_USER', value: 'atlas'),

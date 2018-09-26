@@ -102,7 +102,7 @@ dataSource:
 environments:
     test:
         com:
-            atlasgenetics:
+            binxhealth:
                 hermes:
                     retryInterval: 0
     production:

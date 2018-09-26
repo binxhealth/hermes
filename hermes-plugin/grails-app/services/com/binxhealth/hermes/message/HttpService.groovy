@@ -21,9 +21,9 @@ class HttpService {
 
     @PostConstruct
     void init() {
-        retryInterval = grailsApplication.config.getProperty('com.atlasgenetics.hermes.retryInterval', Long, 10000L)
-        maxRetryAttempts =  grailsApplication.config.getProperty('com.atlasgenetics.hermes.maxRetryAttempts', Integer, 5)
-        requestTimeout = grailsApplication.config.getProperty('com.atlasgenetics.hermes.requestTimeout', Integer, 5000)
+        retryInterval = grailsApplication.config.getProperty('com.binxhealth.hermes.retryInterval', Long, 10000L)
+        maxRetryAttempts =  grailsApplication.config.getProperty('com.binxhealth.hermes.maxRetryAttempts', Integer, 5)
+        requestTimeout = grailsApplication.config.getProperty('com.binxhealth.hermes.requestTimeout', Integer, 5000)
 
         SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(requestTimeout).build()
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(requestTimeout).

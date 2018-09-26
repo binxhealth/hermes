@@ -23,10 +23,10 @@ import groovyx.net.http.Method
  * Hermes DOES NOT save any response data beyond the status code.  Response bodies etc. will be ignored and discarded.
  *
  * To configure the maximum number of send attempts Hermes should make when retrying a failed message, set application
- * property com.atlasgenetics.hermes.retryTimes
+ * property com.binxhealth.hermes.retryTimes
  *
  * To configure the amount of time Hermes should wait between attempts when retrying a failed message, set application
- * property com.atlasgenetics.hermes.retryWaitTime
+ * property com.binxhealth.hermes.retryWaitTime
  *
  * @author Maura Warner
  */

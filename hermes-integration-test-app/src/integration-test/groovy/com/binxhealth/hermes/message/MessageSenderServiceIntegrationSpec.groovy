@@ -25,13 +25,13 @@ class MessageSenderServiceIntegrationSpec extends Specification {
     static final String TEST_URI = "/endpoint"
 
     def setup() {
-        originalMaxRetryAttemptsValue = grailsApplication.config.getProperty('com.atlasgenetics.hermes.maxRetryAttempts',
+        originalMaxRetryAttemptsValue = grailsApplication.config.getProperty('com.binxhealth.hermes.maxRetryAttempts',
                 Integer, 5)
         httpService.init()
     }
 
     def cleanup() {
-        grailsApplication.config.com.atlasgenetics.hermes.maxRetryAttempts = originalMaxRetryAttemptsValue
+        grailsApplication.config.com.binxhealth.hermes.maxRetryAttempts = originalMaxRetryAttemptsValue
         httpService.init()
     }
 
@@ -161,7 +161,7 @@ class MessageSenderServiceIntegrationSpec extends Specification {
         cmd.contentType = ContentType.JSON
 
         and: "the retryTimes configuration property set to override the default value"
-        grailsApplication.config.com.atlasgenetics.hermes.maxRetryAttempts = 10
+        grailsApplication.config.com.binxhealth.hermes.maxRetryAttempts = 10
         httpService.init()
 
         when: "we try to send the failing message"

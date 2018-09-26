@@ -2,7 +2,7 @@
 grails:
     profile: web
     codegen:
-        defaultPackage: hermes.integration.test.app
+        defaultPackage: com.binxhealth.hermes.test.app
     gorm:
         reactor:
             # Whether to translate GORM events into Reactor events

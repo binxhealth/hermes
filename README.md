@@ -9,11 +9,11 @@ it will be purged from the database.
 
 Application properties:
 
-* `com.atlasgenetics.hermes.maxRetryAttempts` - Sets the maximum number of times Hermes should attempt to send a failed
+* `com.binxhealth.hermes.maxRetryAttempts` - Sets the maximum number of times Hermes should attempt to send a failed
 message during the retry process.  Type: `int`, default value: 5
-* `com.atlasgenetics.hermes.retryInterval` - Sets the time in milliseconds that Hermes will wait between attempts at
+* `com.binxhealth.hermes.retryInterval` - Sets the time in milliseconds that Hermes will wait between attempts at
 making a given HTTP request during the retry process.  Type: `Long`, default value: `10000L` (10 seconds)
-* `com.atlasgenetics.hermes.requestTimeout` - Sets the request timeout for HTTP requests in milliseconds.  Type:
+* `com.binxhealth.hermes.requestTimeout` - Sets the request timeout for HTTP requests in milliseconds.  Type:
 `Integer`, default value: `5000L` (5 seconds)
 
 ## Using Hermes

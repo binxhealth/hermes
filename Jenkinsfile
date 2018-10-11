@@ -1,5 +1,5 @@
 @Library('gsl')
-def utils = new com.atlasgenetics.Utils()
+def utils = new com.binxhealth.Utils()
 
 buildTemplate(
     timeoutMinutes: 20,

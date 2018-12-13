@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-version "1.3.1"
+version "1.3.2"
 group "com.binxhealth"
 
 apply plugin:"eclipse"
@@ -84,7 +84,7 @@ grailsPublish {
     // TODO: Provide values here
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
-    userOrg = 'atlasgenetics'
+    userOrg = 'binxhealth'
     githubSlug = 'hermes'
     license {
         name = 'Apache-2.0'
@@ -95,11 +95,11 @@ grailsPublish {
 }
 bintray {
     pkg {
-        userOrg = 'atlasgenetics' // If you want to publish to an organization
+        userOrg = 'binxhealth' // If you want to publish to an organization
         repo = 'grails-plugins'
         name = "$project.name"
-        issueTrackerUrl = "https://github.com/atlasgenetics/hermes/issues"
-        vcsUrl = "https://github.com/atlasgenetics/hermes"
+        issueTrackerUrl = "https://github.com/binxhalth/hermes/issues"
+        vcsUrl = "https://github.com/binxhealth/hermes"
         version {
             attributes = ['grails-plugin': "$project.group:$project.name"]
             name = project.version

@@ -1,4 +1,4 @@
-@Library('gsl@andrewcann/potentially-breaking-changes')
+@Library('gsl')
 def utils = new com.binxhealth.Utils()
 
 buildTemplate(

@@ -19,7 +19,7 @@ class MessageCommand implements Validateable {
     def metadata
 
     static constraints = {
-        url nullable: false, url: ['localhost:\\d*', '\\p{Alnum}(?>[\\p{Alnum}-.]{0,61}\\p{Alnum})?(.local)?']
+        url nullable: false, url: ['localhost:\\d*', '\\p{Alnum}(?>[\\p{Alnum}-.]{0,61}\\p{Alnum})?']
         httpMethod nullable: false
         contentType nullable: false
         headers nullable: true

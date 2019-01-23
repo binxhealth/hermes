@@ -46,7 +46,7 @@ class MessageCommandSpec extends Specification {
         'http://env-stage-mtl-mock.stage.svc.cluster.local/Notification'    || false
         'https://test.bleh.local/1/blkf'                                    || false
         'http:///sdf.com'                                                   || true
-        'http://sdf'                                                        || true
+        'http://sdf'                                                        || false
         'sdf.com'                                                           || true
         null                                                                || true
         'http://.local'                                                     || true

@@ -20,13 +20,11 @@ making a given HTTP request during the retry process.  Type: `Long`, default val
 
 ### How Hermes handles responses
 
-Hermes contains no logic to automatically handle redirects at this time.  Thus, its classification of response status
-codes is nonstandard.
-
 **Status code policies:**
 
 * 2xx response codes are treated as successes.
-* 3xx and 4xx response codes are treated as failures indicating an invalid message; messages that fail with these
+* 3xx redirects will be automatically followed.
+* 4xx response codes are treated as failures indicating an invalid message; messages that fail with these
 codes are ineligible for retry.
 * 5xx response codes are treated as failures, but the message itself is still regarded as valid and eligible for
 retry.

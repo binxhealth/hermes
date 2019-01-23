@@ -27,6 +27,31 @@ class MessageCommandSpec extends Specification {
         'http://example.com'            | [q: 'val']                            || 'http://example.com?q=val'
     }
 
+    @Unroll("verify url validation is working correctly for url #url")
+    void "verify url validation"() {
+        given: "a MessageCommand with a given url"
+        MessageCommand cmd = new MessageCommand()
+        cmd.url = url
+
+        when: "we validate the command"
+        cmd.validate()
+
+        then: "the URL validity is calculated as expected"
+        cmd.errors.getFieldError('url') as boolean == isInvalid
+
+        where:
+        url                                                                 || isInvalid
+        'http://localhost:8080'                                             || false
+        'https://localhost:8080/bleh'                                       || false
+        'http://env-stage-mtl-mock.stage.svc.cluster.local/Notification'    || false
+        'https://test.bleh.local/1/blkf'                                    || false
+        'http:///sdf.com'                                                   || true
+        'http://sdf'                                                        || false
+        'sdf.com'                                                           || true
+        null                                                                || true
+        'http://.local'                                                     || true
+    }
+
     void "test toMap"() {
         given: "a MessageCommand"
         MessageCommand command = new MessageCommand()

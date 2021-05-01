@@ -5,7 +5,7 @@ import grails.plugins.*
 class HermesGrailsPlugin extends Plugin {
 
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "3.3.5 > *"
+    def grailsVersion = "3.3.10 > *"
 
     def title = "Hermes" // Headline display name of the plugin
     def author = "Maura Warner"
